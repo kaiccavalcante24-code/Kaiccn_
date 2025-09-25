@@ -124,7 +124,7 @@ export default function AdminPage() {
   return (
     <div className="relative flex min-h-screen w-full flex-col">
       <Image
-        src="https://i.imgur.com/j4F0ISK.jpeg"
+        src="https://i.imgur.com/Fm3Waqw.jpeg"
         alt="Abstract background"
         layout="fill"
         objectFit="cover"
