@@ -1,6 +1,6 @@
 'use client';
 
-import { useCollection, useMemoFirebase } from '@/firebase';
+import { useCollection, useMemoFirebase, useUser } from '@/firebase';
 import { collection, getFirestore, query, orderBy } from 'firebase/firestore';
 import {
   Table,
@@ -16,15 +16,16 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export default function AdminPage() {
-  // Mover a chamada getFirestore para dentro do componente
+  const { user, isUserLoading } = useUser();
   const firestore = useMemoFirebase(() => getFirestore(), []);
   
   const clickEventsQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
+    // Only create the query if the user is authenticated and firestore is available
+    if (!firestore || !user) return null;
     return query(collection(firestore, 'click_events'), orderBy('timestamp', 'desc'));
-  }, [firestore]);
+  }, [firestore, user]);
 
-  const { data: clickEvents, isLoading } = useCollection(clickEventsQuery);
+  const { data: clickEvents, isLoading: isLoadingEvents, error } = useCollection(clickEventsQuery);
 
   const renderLocation = (locationDataString: string) => {
     try {
@@ -35,6 +36,24 @@ export default function AdminPage() {
     }
   };
 
+  if (isUserLoading) {
+    return (
+        <div className="container mx-auto py-10">
+            <p>Carregando...</p>
+        </div>
+    )
+  }
+
+  if (!user) {
+    return (
+        <div className="container mx-auto py-10">
+            <h1 className='text-2xl font-bold'>Acesso Negado</h1>
+            <p>Você precisa estar logado para ver esta página.</p>
+        </div>
+    )
+  }
+
+
   return (
     <div className="container mx-auto py-10">
       <Card>
@@ -42,8 +61,9 @@ export default function AdminPage() {
           <CardTitle>Painel de Analytics</CardTitle>
         </CardHeader>
         <CardContent>
-          {isLoading && <p>Carregando dados...</p>}
-          {!isLoading && clickEvents && (
+          {isLoadingEvents && <p>Carregando dados...</p>}
+          {error && <p className='text-red-500'>Erro ao carregar dados. Você tem permissão para ver essas informações?</p>}
+          {!isLoadingEvents && clickEvents && (
             <Table>
               <TableHeader>
                 <TableRow>
