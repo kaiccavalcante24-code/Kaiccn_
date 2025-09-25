@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { FaDiscord, FaTiktok, FaWhatsapp } from "react-icons/fa";
 import MusicPlayer from '@/components/MusicPlayer';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { trackClick } from '@/lib/tracking';
@@ -41,7 +41,7 @@ const links = [
   },
 ];
 
-export default function Home() {
+function HomePageContent() {
   const profilePic = PlaceHolderImages.find(p => p.id === 'profile_picture');
   const isMobile = useIsMobile();
   const searchParams = useSearchParams();
@@ -140,4 +140,12 @@ export default function Home() {
       <MusicPlayer />
     </main>
   );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div>Carregando...</div>}>
+      <HomePageContent />
+    </Suspense>
+  )
 }
