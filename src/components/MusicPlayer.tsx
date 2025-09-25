@@ -35,24 +35,16 @@ const MusicPlayer: React.FC = () => {
         setProgress(audio.currentTime);
       }
     };
-
-    const updateDuration = () => {
-      if (audio.duration) {
-        setDuration(audio.duration);
-      }
-    };
     
     const handleTrackEnd = () => {
       handleNext();
     }
 
     audio.addEventListener('timeupdate', updateProgress);
-    audio.addEventListener('loadedmetadata', updateDuration);
     audio.addEventListener('ended', handleTrackEnd);
 
     return () => {
       audio.removeEventListener('timeupdate', updateProgress);
-      audio.removeEventListener('loadedmetadata', updateDuration);
       audio.removeEventListener('ended', handleTrackEnd);
     };
   }, [currentTrackIndex]);
