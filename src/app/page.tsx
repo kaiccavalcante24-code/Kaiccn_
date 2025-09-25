@@ -69,7 +69,7 @@ function HomePageContent() {
   return (
     <main className="page-wrapper relative flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 overflow-hidden pb-48 sm:pb-4">
       <Image
-        src="https://i.imgur.com/jf8g3JT.gif"
+        src="/videos/video.gif"
         alt="Animated background"
         layout="fill"
         objectFit="cover"
