@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { format, subDays, eachDayOfInterval, startOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { getAuth, signOut } from 'firebase/auth';
 import {
@@ -31,12 +31,14 @@ import {
 } from 'recharts';
 import { ArrowUpRight, MousePointerClick, Users } from 'lucide-react';
 import Image from 'next/image';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 
 export default function AdminPage() {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
   const firestore = useMemoFirebase(() => getFirestore(), []);
+  const [selectedPeriod, setSelectedPeriod] = useState('30'); // Default to 30 days
   
   const clickEventsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null; 
@@ -76,15 +78,18 @@ export default function AdminPage() {
   const analyticsData = useMemo(() => {
     if (!clickEvents) return null;
 
-    const thirtyDaysAgo = subDays(new Date(), 30);
-    const recentClickEvents = clickEvents.filter(event => 
-      event.timestamp?.toDate && event.timestamp.toDate() > thirtyDaysAgo
+    const now = new Date();
+    const daysToSubtract = selectedPeriod === 'all' ? clickEvents.length > 0 ? (now.getTime() - (clickEvents[clickEvents.length - 1].timestamp?.toDate()?.getTime() ?? now.getTime())) / (1000 * 3600 * 24) : 0 : parseInt(selectedPeriod);
+    const startDate = subDays(now, daysToSubtract);
+
+    const periodClickEvents = clickEvents.filter(event => 
+      event.timestamp?.toDate && event.timestamp.toDate() > startDate
     );
 
-    const totalClicks = recentClickEvents.length;
-    const uniqueVisitors = new Set(recentClickEvents.map(e => e.ipAddress)).size;
+    const totalClicks = periodClickEvents.length;
+    const uniqueVisitors = new Set(periodClickEvents.map(e => e.ipAddress)).size;
 
-    const clicksByLabel = recentClickEvents.reduce((acc, event) => {
+    const clicksByLabel = periodClickEvents.reduce((acc, event) => {
       const label = event.label || 'N/A';
       acc[label] = (acc[label] || 0) + 1;
       return acc;
@@ -96,7 +101,7 @@ export default function AdminPage() {
 
     const mostClickedButton = clicksByLabelChartData[0]?.name || 'N/A';
 
-    const trafficOverTime = recentClickEvents.reduce((acc, event) => {
+    const trafficOverTime = periodClickEvents.reduce((acc, event) => {
       if (!event.timestamp?.toDate) return acc;
       const date = format(startOfDay(event.timestamp.toDate()), 'dd/MM');
       const source = event.trafficSource || 'direct';
@@ -109,11 +114,11 @@ export default function AdminPage() {
       return acc;
     }, {} as Record<string, Record<string, number>>);
 
-    const allSources = Array.from(new Set(recentClickEvents.map(e => e.trafficSource || 'direct')));
+    const allSources = Array.from(new Set(periodClickEvents.map(e => e.trafficSource || 'direct')));
     
-    const endDate = new Date();
-    const startDate = subDays(endDate, 29);
-    const dateInterval = eachDayOfInterval({ start: startDate, end: endDate });
+    const intervalEndDate = now;
+    const intervalStartDate = startDate;
+    const dateInterval = eachDayOfInterval({ start: intervalStartDate, end: intervalEndDate });
 
     const trafficOverTimeChartData = dateInterval.map(day => {
       const dateKey = format(day, 'dd/MM');
@@ -133,9 +138,9 @@ export default function AdminPage() {
       trafficSources: allSources,
       trafficOverTimeChartData,
       clicksByLabelChartData,
-      recentClickEvents, // Pass filtered events for the table
+      recentClickEvents: periodClickEvents,
     };
-  }, [clickEvents]);
+  }, [clickEvents, selectedPeriod]);
 
   
   if (isUserLoading || !user) {
@@ -147,6 +152,15 @@ export default function AdminPage() {
   }
 
   const AREA_COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088FE', '#00C49F'];
+
+  const periodTitleMap: Record<string, string> = {
+    '7': 'Últimos 7 dias',
+    '30': 'Últimos 30 dias',
+    '90': 'Últimos 90 dias',
+    'all': 'Todo o período'
+  };
+
+  const currentPeriodTitle = periodTitleMap[selectedPeriod];
 
   return (
     <div className="relative flex min-h-screen w-full flex-col">
@@ -161,7 +175,20 @@ export default function AdminPage() {
       
       <main className="z-20 flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+            <div className='flex items-center gap-4'>
+                <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+                 <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+                    <SelectTrigger className="w-[180px] bg-card/60 backdrop-blur-sm border-white/10 text-white">
+                        <SelectValue placeholder="Selecione o período" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-card/90 text-white border-white/20">
+                        <SelectItem value="7">Últimos 7 dias</SelectItem>
+                        <SelectItem value="30">Últimos 30 dias</SelectItem>
+                        <SelectItem value="90">Últimos 90 dias</SelectItem>
+                        <SelectItem value="all">Todo o período</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
             <Button onClick={handleLogout} variant="outline" className="bg-transparent text-white border-white/50 hover:bg-white/10">Sair</Button>
         </div>
         
@@ -173,7 +200,7 @@ export default function AdminPage() {
             <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
               <Card className="bg-card/60 backdrop-blur-sm border-white/10 text-white">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">Total de Cliques (30d)</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-300">Total de Cliques ({currentPeriodTitle})</CardTitle>
                   <MousePointerClick className="h-4 w-4 text-gray-300" />
                 </CardHeader>
                 <CardContent>
@@ -182,7 +209,7 @@ export default function AdminPage() {
               </Card>
               <Card className="bg-card/60 backdrop-blur-sm border-white/10 text-white">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">Visitantes Únicos (30d)</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-300">Visitantes Únicos ({currentPeriodTitle})</CardTitle>
                   <Users className="h-4 w-4 text-gray-300" />
                 </CardHeader>
                 <CardContent>
@@ -191,7 +218,7 @@ export default function AdminPage() {
               </Card>
               <Card className="bg-card/60 backdrop-blur-sm border-white/10 text-white">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">Botão Mais Clicado (30d)</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-300">Botão Mais Clicado ({currentPeriodTitle})</CardTitle>
                   <ArrowUpRight className="h-4 w-4 text-gray-300" />
                 </CardHeader>
                 <CardContent>
@@ -203,7 +230,7 @@ export default function AdminPage() {
             <div className="grid gap-4 md:gap-8 lg:grid-cols-2">
               <Card className="bg-card/60 backdrop-blur-sm border-white/10 text-white">
                 <CardHeader>
-                  <CardTitle>Fontes de Tráfego (Últimos 30 dias)</CardTitle>
+                  <CardTitle>Fontes de Tráfego ({currentPeriodTitle})</CardTitle>
                   <p className="text-sm text-muted-foreground">Total de visitas por dia de cada fonte de tráfego.</p>
                 </CardHeader>
                 <CardContent>
@@ -244,7 +271,7 @@ export default function AdminPage() {
               </Card>
               <Card className="bg-card/60 backdrop-blur-sm border-white/10 text-white">
                 <CardHeader>
-                  <CardTitle>Cliques por Link (Últimos 30 dias)</CardTitle>
+                  <CardTitle>Cliques por Link ({currentPeriodTitle})</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
@@ -261,7 +288,7 @@ export default function AdminPage() {
 
             <Card className="bg-card/60 backdrop-blur-sm border-white/10 text-white">
               <CardHeader>
-                <CardTitle>Eventos de Clique Recentes (Últimos 30 dias)</CardTitle>
+                <CardTitle>Eventos de Clique Recentes ({currentPeriodTitle})</CardTitle>
               </CardHeader>
               <CardContent>
                 <Table>
