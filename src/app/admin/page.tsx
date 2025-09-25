@@ -19,15 +19,15 @@ import { useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { getAuth, signOut } from 'firebase/auth';
 import {
+  AreaChart,
+  Area,
   BarChart,
   Bar,
   XAxis,
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
+  Legend,
 } from 'recharts';
 import { ArrowUpRight, MousePointerClick, Users } from 'lucide-react';
 import Image from 'next/image';
@@ -79,21 +79,11 @@ export default function AdminPage() {
     const totalClicks = clickEvents.length;
     const uniqueVisitors = new Set(clickEvents.map(e => e.ipAddress)).size;
 
-    const clicksBySource = clickEvents.reduce((acc, event) => {
-      const source = event.trafficSource || 'direct';
-      acc[source] = (acc[source] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
     const clicksByLabel = clickEvents.reduce((acc, event) => {
       const label = event.label || 'N/A';
       acc[label] = (acc[label] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
-
-    const trafficSourceChartData = Object.entries(clicksBySource)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value);
 
     const clicksByLabelChartData = Object.entries(clicksByLabel)
       .map(([name, value]) => ({ name, value }))
@@ -101,11 +91,41 @@ export default function AdminPage() {
 
     const mostClickedButton = clicksByLabelChartData[0]?.name || 'N/A';
 
+    const trafficOverTime = clickEvents.reduce((acc, event) => {
+      if (!event.timestamp?.toDate) return acc;
+      const date = format(event.timestamp.toDate(), 'dd/MM');
+      const source = event.trafficSource || 'direct';
+
+      if (!acc[date]) {
+        acc[date] = {};
+      }
+      acc[date][source] = (acc[date][source] || 0) + 1;
+
+      return acc;
+    }, {} as Record<string, Record<string, number>>);
+
+    const allSources = Array.from(new Set(clickEvents.map(e => e.trafficSource || 'direct')));
+
+    const trafficOverTimeChartData = Object.entries(trafficOverTime)
+      .map(([date, sources]) => ({
+        date,
+        ...allSources.reduce((acc, source) => {
+          acc[source] = sources[source] || 0;
+          return acc;
+        }, {} as Record<string, number>),
+      }))
+      .sort((a, b) => {
+        const [dayA, monthA] = a.date.split('/');
+        const [dayB, monthB] = b.date.split('/');
+        return new Date(`${monthA}/${dayA}/2024`).getTime() - new Date(`${monthB}/${dayB}/2024`).getTime();
+      });
+
     return {
       totalClicks,
       uniqueVisitors,
       mostClickedButton,
-      trafficSourceChartData,
+      trafficSources: allSources,
+      trafficOverTimeChartData,
       clicksByLabelChartData,
     };
   }, [clickEvents]);
@@ -119,7 +139,7 @@ export default function AdminPage() {
     )
   }
 
-  const PIE_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
+  const AREA_COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088FE', '#00C49F'];
 
   return (
     <div className="relative flex min-h-screen w-full flex-col">
@@ -176,28 +196,42 @@ export default function AdminPage() {
             <div className="grid gap-4 md:gap-8 lg:grid-cols-2">
               <Card className="bg-card/60 backdrop-blur-sm border-white/10 text-white">
                 <CardHeader>
-                  <CardTitle>Cliques por Origem</CardTitle>
+                  <CardTitle>Fontes de Tráfego</CardTitle>
+                  <p className="text-sm text-muted-foreground">Total de visitas por dia de cada fonte de tráfego.</p>
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                      <Pie
-                        data={analyticsData.trafficSourceChartData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                        className="text-white"
-                      >
-                        {analyticsData.trafficSourceChartData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                    <AreaChart data={analyticsData.trafficOverTimeChartData}>
+                      <defs>
+                        {analyticsData.trafficSources.map((source, index) => (
+                          <linearGradient key={source} id={`color-${source}`} x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor={AREA_COLORS[index % AREA_COLORS.length]} stopOpacity={0.8}/>
+                            <stop offset="95%" stopColor={AREA_COLORS[index % AREA_COLORS.length]} stopOpacity={0}/>
+                          </linearGradient>
                         ))}
-                      </Pie>
-                      <Tooltip contentStyle={{ backgroundColor: 'rgba(30, 30, 30, 0.8)', border: '1px solid rgba(255, 255, 255, 0.2)' }} />
-                    </PieChart>
+                      </defs>
+                      <XAxis dataKey="date" stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'rgba(30, 30, 30, 0.8)',
+                          border: '1px solid rgba(255, 255, 255, 0.2)',
+                          color: 'white',
+                        }}
+                      />
+                      <Legend wrapperStyle={{ color: 'white' }} />
+                      {analyticsData.trafficSources.map((source, index) => (
+                        <Area
+                          key={source}
+                          type="monotone"
+                          dataKey={source}
+                          stroke={AREA_COLORS[index % AREA_COLORS.length]}
+                          fillOpacity={1}
+                          fill={`url(#color-${source})`}
+                          name={source.charAt(0).toUpperCase() + source.slice(1)}
+                        />
+                      ))}
+                    </AreaChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
