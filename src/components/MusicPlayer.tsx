@@ -40,10 +40,33 @@ const MusicPlayer: React.FC = () => {
   }, [isPlaying, currentTrackIndex]);
   
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = isMuted ? 0 : volume;
+    const audio = audioRef.current;
+    if (audio) {
+      audio.volume = isMuted ? 0 : volume;
     }
   }, [volume, isMuted]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const setAudioData = () => {
+      if (audio.duration) {
+        setDuration(audio.duration);
+      }
+    };
+
+    const setAudioTime = () => setProgress(audio.currentTime);
+
+    audio.addEventListener('loadedmetadata', setAudioData);
+    audio.addEventListener('timeupdate', setAudioTime);
+
+    return () => {
+      audio.removeEventListener('loadedmetadata', setAudioData);
+      audio.removeEventListener('timeupdate', setAudioTime);
+    };
+  }, [currentTrackIndex]);
+
 
   const togglePlayPause = () => {
     setIsPlaying(!isPlaying);
@@ -87,14 +110,6 @@ const MusicPlayer: React.FC = () => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
-
-  const onTimeUpdate = (e: React.SyntheticEvent<HTMLAudioElement>) => {
-    setProgress(e.currentTarget.currentTime);
-  };
-
-  const onLoadedMetadata = (e: React.SyntheticEvent<HTMLAudioElement>) => {
-    setDuration(e.currentTarget.duration);
   };
 
   const onEnded = () => {
@@ -168,8 +183,6 @@ const MusicPlayer: React.FC = () => {
         ref={audioRef} 
         src={currentTrack.source} 
         preload="metadata"
-        onTimeUpdate={onTimeUpdate}
-        onLoadedMetadata={onLoadedMetadata}
         onEnded={onEnded}
       />
     </Card>
