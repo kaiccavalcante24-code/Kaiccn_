@@ -26,9 +26,6 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
-  BarChart,
-  Bar,
-  CartesianGrid,
 } from 'recharts';
 import { ArrowUpRight, MousePointerClick, Users } from 'lucide-react';
 import Image from 'next/image';
@@ -290,41 +287,6 @@ export default function AdminPage() {
                         />
                       ))}
                     </AreaChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">
-              <Card className="bg-card/40 backdrop-blur-sm border-white/10 text-white rounded-xl">
-                <CardHeader>
-                  <CardTitle>Cliques por Link ({currentPeriodTitle})</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={analyticsData.clicksByLabelChartData} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
-                      <XAxis type="number" stroke="hsl(var(--foreground))" fontSize={12} />
-                      <YAxis type="category" dataKey="name" stroke="hsl(var(--foreground))" fontSize={12} width={120} tick={{ fill: 'white' }} />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="value" name="Cliques" fill={AREA_COLORS[0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
-              <Card className="bg-card/40 backdrop-blur-sm border-white/10 text-white rounded-xl">
-                <CardHeader>
-                  <CardTitle>Fontes de Tráfego ({currentPeriodTitle})</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={analyticsData.trafficSourcesChartData} layout="vertical">
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255, 255, 255, 0.1)" />
-                      <XAxis type="number" stroke="hsl(var(--foreground))" fontSize={12} />
-                      <YAxis type="category" dataKey="name" stroke="hsl(var(--foreground))" fontSize={12} width={120} tick={{ fill: 'white' }} />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="value" name="Visitas" fill={AREA_COLORS[1]} />
-                    </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
