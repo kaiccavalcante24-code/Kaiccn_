@@ -67,7 +67,7 @@ export default function Home() {
         </h1>
         <p className="font-body text-md sm:text-lg text-foreground/80 mt-1">@Kaiccn_</p>
 
-        <div className="mt-8 flex w-full max-w-sm flex-col items-center space-y-4">
+        <div className="mt-8 flex w-full max-w-xs sm:max-w-sm flex-col items-center space-y-4">
           {links.map((link) => (
             <Button
               key={link.href}
