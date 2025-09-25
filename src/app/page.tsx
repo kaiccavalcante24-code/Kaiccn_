@@ -3,6 +3,7 @@ import { Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { FaDiscord, FaTiktok, FaWhatsapp } from "react-icons/fa";
+import MusicPlayer from '@/components/MusicPlayer';
 
 
 const links = [
@@ -66,7 +67,7 @@ export default function Home() {
         </h1>
         <p className="font-body text-lg text-foreground/80 mt-1">@Kaiccn_</p>
 
-        <div className="mt-8 flex w-full max-w-xs flex-col items-center space-y-4 sm:max-w-sm">
+        <div className="mt-8 flex w-full max-w-sm flex-col items-center space-y-4">
           {links.map((link) => (
             <Button
               key={link.href}
@@ -84,7 +85,7 @@ export default function Home() {
                       objectFit="cover"
                       className="absolute inset-0 z-0 transition-transform duration-300 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 z-10 bg-black/70"></div>
+                    <div className="absolute inset-0 z-10 bg-black/70 group-hover:bg-black/60 transition-colors"></div>
                   </>
                 )}
                 <div className="relative z-20 flex items-center gap-4">
@@ -96,6 +97,7 @@ export default function Home() {
           ))}
         </div>
       </div>
+      <MusicPlayer />
     </main>
   );
 }

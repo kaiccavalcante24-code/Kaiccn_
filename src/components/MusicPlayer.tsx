@@ -1,0 +1,179 @@
+'use client';
+
+import React, { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
+import {
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  Volume2,
+  VolumeX,
+} from 'lucide-react';
+import { playlist, Track } from '@/lib/playlist';
+import { Slider } from '@/components/ui/slider';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+
+const MusicPlayer: React.FC = () => {
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(0.8);
+  const [isMuted, setIsMuted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  const currentTrack = playlist[currentTrackIndex];
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const updateProgress = () => {
+      setProgress(audio.currentTime);
+    };
+
+    const updateDuration = () => {
+      setDuration(audio.duration);
+    };
+    
+    const handleTrackEnd = () => {
+      handleNext();
+    }
+
+    audio.addEventListener('timeupdate', updateProgress);
+    audio.addEventListener('loadedmetadata', updateDuration);
+    audio.addEventListener('ended', handleTrackEnd);
+
+    return () => {
+      audio.removeEventListener('timeupdate', updateProgress);
+      audio.removeEventListener('loadedmetadata', updateDuration);
+      audio.removeEventListener('ended', handleTrackEnd);
+    };
+  }, [currentTrackIndex]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.play().catch(e => console.error("Error playing audio:", e));
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  }, [isPlaying, currentTrackIndex]);
+  
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume;
+    }
+  }, [volume, isMuted]);
+
+  const togglePlayPause = () => {
+    setIsPlaying(!isPlaying);
+  };
+
+  const handleNext = () => {
+    setCurrentTrackIndex((prevIndex) => (prevIndex + 1) % playlist.length);
+    setIsPlaying(true);
+  };
+
+  const handlePrev = () => {
+    setCurrentTrackIndex(
+      (prevIndex) => (prevIndex - 1 + playlist.length) % playlist.length
+    );
+    setIsPlaying(true);
+  };
+
+  const handleProgressChange = (value: number[]) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = value[0];
+      setProgress(value[0]);
+    }
+  };
+  
+  const handleVolumeChange = (value: number[]) => {
+    const newVolume = value[0];
+    setVolume(newVolume);
+    if (newVolume === 0) {
+      setIsMuted(true);
+    } else if (isMuted) {
+      setIsMuted(false);
+    }
+  };
+
+  const toggleMute = () => {
+    setIsMuted(!isMuted);
+  };
+
+  const formatTime = (time: number) => {
+    if (isNaN(time)) return '0:00';
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <Card className="fixed bottom-4 right-4 z-50 w-80 rounded-lg bg-card/80 p-4 shadow-lg backdrop-blur-sm">
+      <div className="flex items-center gap-4">
+        <div className="relative h-16 w-16 overflow-hidden rounded-md">
+          <Image
+            src={currentTrack.cover}
+            alt={currentTrack.title}
+            layout="fill"
+            objectFit="cover"
+          />
+        </div>
+        <div className="flex-1">
+          <h3 className="font-bold text-sm truncate text-foreground">{currentTrack.title}</h3>
+          <p className="text-xs text-muted-foreground">{currentTrack.artist}</p>
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <div className="flex items-center gap-2">
+            <span className="text-xs font-mono text-muted-foreground">{formatTime(progress)}</span>
+            <Slider
+              min={0}
+              max={duration}
+              step={1}
+              value={[progress]}
+              onValueChange={handleProgressChange}
+              className="w-full"
+            />
+            <span className="text-xs font-mono text-muted-foreground">{formatTime(duration)}</span>
+        </div>
+
+        <div className="mt-2 flex items-center justify-center gap-4">
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handlePrev}>
+            <SkipBack className="size-5" />
+          </Button>
+          <Button variant="default" size="icon" className="h-10 w-10" onClick={togglePlayPause}>
+            {isPlaying ? <Pause className="size-5" /> : <Play className="size-5" />}
+          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleNext}>
+            <SkipForward className="size-5" />
+          </Button>
+        </div>
+        
+        <div className="mt-2 flex items-center gap-2">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleMute}>
+              {isMuted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+            </Button>
+            <Slider
+              min={0}
+              max={1}
+              step={0.05}
+              value={[isMuted ? 0 : volume]}
+              onValueChange={handleVolumeChange}
+              className="w-full"
+            />
+        </div>
+
+      </div>
+      <audio ref={audioRef} src={currentTrack.source} preload="metadata" />
+    </Card>
+  );
+};
+
+export default MusicPlayer;
