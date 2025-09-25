@@ -73,7 +73,7 @@ function HomePageContent() {
         alt="Animated background"
         layout="fill"
         objectFit="cover"
-        className="absolute z-0 sm:scale-100 scale-150"
+        className="absolute z-0"
         unoptimized
       />
       <div className="absolute inset-0 z-10 bg-black/70"></div>
