@@ -116,7 +116,7 @@ const MusicPlayer: React.FC = () => {
   return (
     <Card className="fixed bottom-4 right-4 z-50 w-80 rounded-lg bg-card/80 p-4 shadow-lg backdrop-blur-sm">
       <div className="flex items-center gap-4">
-        <div className="relative h-16 w-16 overflow-hidden rounded-md aspect-square">
+        <div className="relative h-14 w-14 overflow-hidden rounded-md aspect-square">
           <Image
             src={currentTrack.cover}
             alt={currentTrack.title}
@@ -128,14 +128,25 @@ const MusicPlayer: React.FC = () => {
           <h3 className="font-bold text-sm truncate text-foreground">{currentTrack.title}</h3>
           <p className="text-xs text-muted-foreground">{currentTrack.artist}</p>
         </div>
+        <div className="flex items-center justify-center gap-1">
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handlePrev}>
+            <SkipBack className="size-5" />
+          </Button>
+          <Button variant="default" size="icon" className="h-10 w-10 rounded-full" onClick={togglePlayPause}>
+            {isPlaying ? <Pause className="size-5" /> : <Play className="size-5" />}
+          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleNext}>
+            <SkipForward className="size-5" />
+          </Button>
+        </div>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-4 space-y-3">
         <div className="flex items-center gap-2">
             <span className="text-xs font-mono text-muted-foreground">{formatTime(progress)}</span>
             <Slider
               min={0}
-              max={duration}
+              max={duration || 1}
               step={1}
               value={[progress]}
               onValueChange={handleProgressChange}
@@ -144,19 +155,7 @@ const MusicPlayer: React.FC = () => {
             <span className="text-xs font-mono text-muted-foreground">{formatTime(duration)}</span>
         </div>
 
-        <div className="mt-2 flex items-center justify-center gap-4">
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handlePrev}>
-            <SkipBack className="size-5" />
-          </Button>
-          <Button variant="default" size="icon" className="h-10 w-10" onClick={togglePlayPause}>
-            {isPlaying ? <Pause className="size-5" /> : <Play className="size-5" />}
-          </Button>
-          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleNext}>
-            <SkipForward className="size-5" />
-          </Button>
-        </div>
-        
-        <div className="mt-2 flex items-center gap-2">
+        <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleMute}>
               {isMuted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
             </Button>
@@ -169,7 +168,6 @@ const MusicPlayer: React.FC = () => {
               className="w-full"
             />
         </div>
-
       </div>
       <audio ref={audioRef} src={currentTrack.source} preload="metadata" />
     </Card>
