@@ -7,9 +7,9 @@ export type Track = {
 
 export const playlist: Track[] = [
   {
-    title: 'Nome da Música 1',
-    artist: 'Nome do Artista 1',
-    cover: 'https://picsum.photos/seed/1/200/200',
+    title: 'Caleb Arredondo - Feeling Blue',
+    artist: 'Kurate Music',
+    cover: 'https://i.imgur.com/uOey02b.png',
     source: '/musicas/1.mp3',
   },
   {
