@@ -50,7 +50,7 @@ export default function Home() {
       <div className="absolute inset-0 z-10 bg-black/70"></div>
       <div className="z-20 flex w-full flex-col items-center justify-center text-center">
         {profilePic && (
-          <div className="relative w-32 h-32 rounded-full mb-4 border-2 border-primary/50 shadow-lg overflow-hidden">
+          <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full mb-4 border-2 border-primary/50 shadow-lg overflow-hidden">
             <Image
               src={profilePic.imageUrl}
               alt={profilePic.description}
@@ -62,10 +62,10 @@ export default function Home() {
           </div>
         )}
 
-        <h1 className="font-headline text-4xl font-bold text-foreground">
+        <h1 className="font-headline text-3xl sm:text-4xl font-bold text-foreground">
           Kaic Cavalcante
         </h1>
-        <p className="font-body text-lg text-foreground/80 mt-1">@Kaiccn_</p>
+        <p className="font-body text-md sm:text-lg text-foreground/80 mt-1">@Kaiccn_</p>
 
         <div className="mt-8 flex w-full max-w-sm flex-col items-center space-y-4">
           {links.map((link) => (
@@ -73,7 +73,7 @@ export default function Home() {
               key={link.href}
               asChild
               variant="outline"
-              className="w-full h-16 text-base font-bold bg-accent/60 border-white/10 backdrop-blur-sm hover:bg-accent hover:text-foreground transition-all duration-300 ease-in-out transform hover:scale-105 rounded-full text-white relative overflow-hidden group"
+              className="w-full h-14 sm:h-16 text-sm sm:text-base font-bold bg-accent/60 border-white/10 backdrop-blur-sm hover:bg-accent hover:text-foreground transition-all duration-300 ease-in-out transform hover:scale-105 rounded-full text-white relative overflow-hidden group"
             >
               <a href={link.href} target="_blank" rel="noopener noreferrer" className="z-10 w-full h-full flex items-center justify-center">
                 {link.backgroundImage && (
@@ -88,7 +88,7 @@ export default function Home() {
                     <div className="absolute inset-0 z-10 bg-black/70 group-hover:bg-black/60 transition-colors"></div>
                   </>
                 )}
-                <div className="relative z-20 flex items-center gap-4">
+                <div className="relative z-20 flex items-center gap-2 sm:gap-4">
                   {link.icon}
                   <span>{link.label}</span>
                 </div>
