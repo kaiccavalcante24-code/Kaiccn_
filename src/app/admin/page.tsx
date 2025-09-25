@@ -290,11 +290,18 @@ export default function AdminPage() {
                     </CardHeader>
                     <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={analyticsData.clicksByLabelChartData} layout="vertical" margin={{ left: 30 }}>
-                        <XAxis type="number" hide tick={{ fill: 'white' }} />
-                        <YAxis dataKey="name" type="category" width={100} tickLine={false} axisLine={false} tick={{ fill: 'white' }}/>
-                        <Tooltip cursor={{ fill: 'rgba(136, 132, 216, 0.2)' }} contentStyle={{ backgroundColor: 'rgba(30, 30, 30, 0.8)', border: '1px solid rgba(255, 255, 255, 0.2)' }}/>
-                        <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} barSize={20} />
+                        <BarChart data={analyticsData.clicksByLabelChartData} layout="vertical" margin={{ left: 30, right: 20 }}>
+                          <XAxis type="number" stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                          <YAxis dataKey="name" type="category" stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} width={120} />
+                          <Tooltip
+                            contentStyle={{
+                              backgroundColor: 'rgba(30, 30, 30, 0.8)',
+                              border: '1px solid rgba(255, 255, 255, 0.2)',
+                              color: 'white',
+                            }}
+                            cursor={{ fill: 'rgba(136, 132, 216, 0.2)' }}
+                          />
+                          <Bar dataKey="value" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} barSize={15} />
                         </BarChart>
                     </ResponsiveContainer>
                     </CardContent>
@@ -307,11 +314,18 @@ export default function AdminPage() {
                     </CardHeader>
                     <CardContent>
                     <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={analyticsData.clicksBySourceChartData} layout="vertical" margin={{ left: 30 }}>
-                        <XAxis type="number" hide tick={{ fill: 'white' }} />
-                        <YAxis dataKey="name" type="category" width={80} tickLine={false} axisLine={false} tick={{ fill: 'white' }}/>
-                        <Tooltip cursor={{ fill: 'rgba(136, 132, 216, 0.2)' }} contentStyle={{ backgroundColor: 'rgba(30, 30, 30, 0.8)', border: '1px solid rgba(255, 255, 255, 0.2)' }}/>
-                        <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} barSize={20} />
+                        <BarChart data={analyticsData.clicksBySourceChartData} layout="vertical" margin={{ left: 20, right: 30 }}>
+                           <XAxis type="number" stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                           <YAxis dataKey="name" type="category" stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} width={80}/>
+                           <Tooltip
+                            contentStyle={{
+                              backgroundColor: 'rgba(30, 30, 30, 0.8)',
+                              border: '1px solid rgba(255, 255, 255, 0.2)',
+                              color: 'white',
+                            }}
+                            cursor={{ fill: 'rgba(136, 132, 216, 0.2)' }}
+                           />
+                           <Bar dataKey="value" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} barSize={15} />
                         </BarChart>
                     </ResponsiveContainer>
                     </CardContent>
@@ -363,3 +377,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
