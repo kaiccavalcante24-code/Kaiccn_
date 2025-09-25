@@ -36,12 +36,6 @@ const MusicPlayer: React.FC = () => {
     }
   };
 
-  const handleLoadedMetadata = () => {
-    if (audioRef.current) {
-      setDuration(audioRef.current.duration);
-    }
-  };
-
   const togglePlayPause = () => {
     const prevValue = isPlaying;
     setIsPlaying(!prevValue);
@@ -67,13 +61,20 @@ const MusicPlayer: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isPlaying) {
-      audioRef.current?.play();
-      animationRef.current = requestAnimationFrame(whilePlaying);
-    } else {
-      audioRef.current?.pause();
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.load();
+      setProgress(0);
+      
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          setIsPlaying(true);
+          animationRef.current = requestAnimationFrame(whilePlaying);
+        }).catch(error => {
+          // Auto-play was prevented, keep it paused.
+          setIsPlaying(false);
+        });
       }
     }
   }, [currentTrackIndex]);
@@ -81,10 +82,18 @@ const MusicPlayer: React.FC = () => {
 
   const handleProgressChange = (value: number[]) => {
     if (audioRef.current) {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
       audioRef.current.currentTime = value[0];
       setProgress(value[0]);
     }
   };
+
+  const handleProgressCommit = () => {
+    if (isPlaying && animationRef.current) {
+       animationRef.current = requestAnimationFrame(whilePlaying);
+    }
+  }
+
 
   const handleVolumeChange = (value: number[]) => {
     const newVolume = value[0];
@@ -189,10 +198,11 @@ const MusicPlayer: React.FC = () => {
           </span>
           <Slider
             min={0}
-            max={duration}
+            max={duration || 1}
             step={1}
             value={[progress]}
             onValueChange={handleProgressChange}
+            onValueCommit={handleProgressCommit}
             className="w-full"
           />
           <span className="text-xs font-mono text-muted-foreground">
@@ -229,7 +239,7 @@ const MusicPlayer: React.FC = () => {
         ref={audioRef}
         src={currentTrack.source}
         preload="metadata"
-        onLoadedMetadata={handleLoadedMetadata}
+        onLoadedMetadata={() => audioRef.current && setDuration(audioRef.current.duration)}
         onEnded={handleNext}
       />
     </Card>
