@@ -31,20 +31,24 @@ const MusicPlayer: React.FC = () => {
     if (!audio) return;
 
     const updateProgress = () => {
-      if (!audio.paused) {
-        setProgress(audio.currentTime);
-      }
+      setProgress(audio.currentTime);
     };
+
+    const setAudioData = () => {
+      setDuration(audio.duration);
+    }
     
     const handleTrackEnd = () => {
       handleNext();
     }
 
     audio.addEventListener('timeupdate', updateProgress);
+    audio.addEventListener('loadedmetadata', setAudioData);
     audio.addEventListener('ended', handleTrackEnd);
 
     return () => {
       audio.removeEventListener('timeupdate', updateProgress);
+      audio.removeEventListener('loadedmetadata', setAudioData);
       audio.removeEventListener('ended', handleTrackEnd);
     };
   }, [currentTrackIndex]);
@@ -165,9 +169,7 @@ const MusicPlayer: React.FC = () => {
             />
         </div>
       </div>
-      <audio ref={audioRef} src={currentTrack.source} preload="metadata" onLoadedMetadata={() => {
-        if(audioRef.current) setDuration(audioRef.current.duration);
-      }}/>
+      <audio ref={audioRef} src={currentTrack.source} preload="metadata"/>
     </Card>
   );
 };
