@@ -10,7 +10,7 @@ import {
   Volume2,
   VolumeX,
 } from 'lucide-react';
-import { playlist, Track } from '@/lib/playlist';
+import { playlist } from '@/lib/playlist';
 import { Slider } from '@/components/ui/slider';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -114,19 +114,21 @@ const MusicPlayer: React.FC = () => {
   };
 
   return (
-    <Card className="fixed bottom-4 right-4 z-50 w-80 rounded-lg bg-card/80 p-4 shadow-lg backdrop-blur-sm">
-      <div className="flex items-center gap-4">
-        <div className="relative h-14 w-14 overflow-hidden rounded-md aspect-square">
-          <Image
-            src={currentTrack.cover}
-            alt={currentTrack.title}
-            layout="fill"
-            objectFit="cover"
-          />
-        </div>
-        <div className="flex-1">
-          <h3 className="font-bold text-sm truncate text-foreground">{currentTrack.title}</h3>
-          <p className="text-xs text-muted-foreground">{currentTrack.artist}</p>
+    <Card className="fixed bottom-4 right-4 left-4 sm:left-auto z-50 sm:w-80 rounded-lg bg-card/80 p-4 shadow-lg backdrop-blur-sm">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+            <div className="relative h-12 w-12 overflow-hidden rounded-md aspect-square">
+                <Image
+                    src={currentTrack.cover}
+                    alt={currentTrack.title}
+                    layout="fill"
+                    objectFit="cover"
+                />
+            </div>
+            <div className="flex-1">
+                <h3 className="font-bold text-sm truncate text-foreground">{currentTrack.title}</h3>
+                <p className="text-xs text-muted-foreground">{currentTrack.artist}</p>
+            </div>
         </div>
         <div className="flex items-center justify-center gap-1">
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handlePrev}>
