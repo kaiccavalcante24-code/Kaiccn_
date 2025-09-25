@@ -44,7 +44,7 @@ export default function Home() {
         alt="Animated background"
         layout="fill"
         objectFit="cover"
-        className="absolute z-0"
+        className="absolute z-0 sm:scale-100 scale-150"
         unoptimized
       />
       <div className="absolute inset-0 z-10 bg-black/70"></div>
