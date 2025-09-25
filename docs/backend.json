@@ -1,0 +1,202 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user's profile information.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity."
+        },
+        "username": {
+          "type": "string",
+          "description": "The user's display name."
+        },
+        "profilePictureUrl": {
+          "type": "string",
+          "description": "URL of the user's profile picture.",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "id",
+        "username"
+      ]
+    },
+    "Link": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Link",
+      "type": "object",
+      "description": "Represents a single link associated with a user profile.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Link entity."
+        },
+        "userProfileId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N Link)"
+        },
+        "url": {
+          "type": "string",
+          "description": "The URL the link points to.",
+          "format": "uri"
+        },
+        "label": {
+          "type": "string",
+          "description": "The display label for the link."
+        },
+        "icon": {
+          "type": "string",
+          "description": "The name or identifier for the icon associated with the link."
+        }
+      },
+      "required": [
+        "id",
+        "userProfileId",
+        "url",
+        "label"
+      ]
+    },
+    "ClickEvent": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ClickEvent",
+      "type": "object",
+      "description": "Represents a click event on a specific link.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ClickEvent entity."
+        },
+        "linkId": {
+          "type": "string",
+          "description": "Reference to Link. (Relationship: Link 1:N ClickEvent)"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "The date and time of the click event.",
+          "format": "date-time"
+        },
+        "ipAddress": {
+          "type": "string",
+          "description": "The IP address of the user who clicked the link."
+        },
+        "userAgent": {
+          "type": "string",
+          "description": "The user agent string of the user who clicked the link."
+        },
+        "trafficSource": {
+          "type": "string",
+          "description": "The traffic source route (e.g., '/insta', '/discord')."
+        },
+        "locationData": {
+          "type": "string",
+          "description": "stringified JSON object to hold the data fetched from ipapi.co."
+        }
+      },
+      "required": [
+        "id",
+        "linkId",
+        "timestamp",
+        "ipAddress"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile information.  Access is restricted to the user themselves (path-based ownership).",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/links/{linkId}",
+        "definition": {
+          "entityName": "Link",
+          "schema": {
+            "$ref": "#/backend/entities/Link"
+          },
+          "description": "Stores links associated with a specific user. Continues path-based ownership from the /users/{userId} collection.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "linkId",
+              "description": "The unique identifier of the link."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/click_events/{clickEventId}",
+        "definition": {
+          "entityName": "ClickEvent",
+          "schema": {
+            "$ref": "#/backend/entities/ClickEvent"
+          },
+          "description": "Stores click events for links. Anyone can create them, but reading is restricted to admins.  The trafficSource is stored here.",
+          "params": [
+            {
+              "name": "clickEventId",
+              "description": "The unique identifier of the click event."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{userId}",
+        "definition": {
+          "entityName": "role",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Used for DBAC (Database-Based Access Control). The *existence* of a document grants admin privileges.  No data needs to be stored in the document itself.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user with admin privileges."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/admin/traffic_reports/{reportId}",
+        "definition": {
+          "entityName": "traffic_report",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores aggregate data related to traffic reports. Admin only",
+          "params": [
+            {
+              "name": "reportId",
+              "description": "The unique identifier of the traffic report."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "This Firestore structure prioritizes security, scalability, and debuggability based on the core design principles.  Authorization Independence is achieved by avoiding `get()` calls in security rules. All authorization information required for a document is contained within the document itself, or derived from path-based ownership, enabling atomic operations. Structural Segregation is used to ensure that each collection has a homogeneous security posture. Access Modeling employs consistent patterns for authorization: path-based ownership for user profiles and links, and a dedicated collection for admin roles.  The design supports QAPs (Rules are not Filters) by structurally segregating data based on access requirements.\n\nSpecifically:\n\n*   **/users/{userId}**: This collection stores user profiles. Access is restricted to the user themselves. This enforces path-based ownership.\n*   **/users/{userId}/links/{linkId}**: This subcollection stores links owned by a specific user. This continues the path-based ownership model and avoids the need for `get()` calls to verify ownership.\n*   **/click_events/{clickEventId}**: This collection stores click events. Authorization: Anyone can create click events, but only admins can read them for analytics. The trafficSource is stored in this collection to facilitate tracking.\n*   **/roles_admin/{userId}**: This collection is used for DBAC (Database-Based Access Control). The existence of a document in this collection grants admin privileges to the corresponding user. Rules check for document existence rather than content, improving security and efficiency.\n*   **/admin/traffic_reports/{reportId}**: stores aggregate data related to traffic reports. This is admin only."
+  }
+}
