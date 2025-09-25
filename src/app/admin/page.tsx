@@ -25,13 +25,15 @@ export default function AdminPage() {
   const firestore = useMemoFirebase(() => getFirestore(), []);
   
   const clickEventsQuery = useMemoFirebase(() => {
-    if (!firestore || !user) return null; // Wait for user
+    // Only fetch if the user is logged in (and not loading)
+    if (!firestore || !user) return null; 
     return query(collection(firestore, 'click_events'), orderBy('timestamp', 'desc'));
   }, [firestore, user]);
 
   const { data: clickEvents, isLoading: isLoadingEvents, error } = useCollection(clickEventsQuery);
 
   useEffect(() => {
+    // If not loading and no user, redirect to login
     if (!isUserLoading && !user) {
       router.push('/login');
     }
@@ -39,19 +41,27 @@ export default function AdminPage() {
 
   const handleLogout = async () => {
     const auth = getAuth();
-    await signOut(auth);
-    router.push('/login');
+    try {
+      await signOut(auth);
+      router.push('/login');
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
   };
 
   const renderLocation = (locationDataString: string) => {
     try {
       const locationData = JSON.parse(locationDataString);
-      return `${locationData.city}, ${locationData.region}, ${locationData.country_name}`;
+      if (locationData.city && locationData.region && locationData.country_name) {
+        return `${locationData.city}, ${locationData.region}, ${locationData.country_name}`;
+      }
+      return "Location data incomplete";
     } catch (e) {
       return "N/A";
     }
   };
-
+  
+  // Display a loading screen while checking auth state
   if (isUserLoading || !user) {
     return (
         <div className="flex h-screen items-center justify-center bg-background">
@@ -60,6 +70,7 @@ export default function AdminPage() {
     )
   }
 
+  // If we have a user, render the admin panel
   return (
     <div className="container mx-auto py-10">
       <Card>

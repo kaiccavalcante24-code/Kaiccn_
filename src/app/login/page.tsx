@@ -24,17 +24,22 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
+      // First, try to sign in
       await signInWithEmailAndPassword(auth, email, password);
       router.push('/admin');
     } catch (error: any) {
-        // If user not found or credential is wrong, try to create a new user.
-        // This is useful for the first login.
+        // If the user is not found, it means it's the first login.
+        // So, we create the user and then sign them in.
         if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
             try {
                 // Attempt to create the user
                 await createUserWithEmailAndPassword(auth, email, password);
-                // Then, sign in with the newly created user
+                // After creation, sign in again to establish the session
                 await signInWithEmailAndPassword(auth, email, password);
+                toast({
+                    title: 'Conta de administrador criada!',
+                    description: 'Você agora está logado.',
+                });
                 router.push('/admin');
             } catch (creationError: any) {
                  toast({
@@ -44,6 +49,7 @@ export default function LoginPage() {
                 });
             }
         } else {
+             // For any other login errors
              toast({
                 variant: 'destructive',
                 title: 'Erro de Login',
