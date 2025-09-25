@@ -30,6 +30,7 @@ import {
   Cell,
 } from 'recharts';
 import { ArrowUpRight, MousePointerClick, Users } from 'lucide-react';
+import Image from 'next/image';
 
 
 export default function AdminPage() {
@@ -121,41 +122,50 @@ export default function AdminPage() {
   const PIE_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-muted/40">
-      <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+    <div className="relative flex min-h-screen w-full flex-col">
+      <Image
+        src="https://i.imgur.com/j4F0ISK.jpeg"
+        alt="Abstract background"
+        layout="fill"
+        objectFit="cover"
+        className="absolute z-0"
+      />
+      <div className="absolute inset-0 z-10 bg-black/70"></div>
+      
+      <main className="z-20 flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <div className="flex items-center justify-between">
-            <h1 className="text-3xl font-bold">Dashboard</h1>
-            <Button onClick={handleLogout} variant="outline">Sair</Button>
+            <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+            <Button onClick={handleLogout} variant="outline" className="bg-transparent text-white border-white/50 hover:bg-white/10">Sair</Button>
         </div>
         
-        {isLoadingEvents && <p>Carregando dados...</p>}
-        {error && <p className='text-red-500'>Erro ao carregar dados: {error.message}</p>}
+        {isLoadingEvents && <p className="text-white">Carregando dados...</p>}
+        {error && <p className='text-red-400'>Erro ao carregar dados: {error.message}</p>}
 
         {analyticsData && (
           <>
             <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
-              <Card>
+              <Card className="bg-card/60 backdrop-blur-sm border-white/10 text-white">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total de Cliques</CardTitle>
-                  <MousePointerClick className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium text-gray-300">Total de Cliques</CardTitle>
+                  <MousePointerClick className="h-4 w-4 text-gray-300" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{analyticsData.totalClicks}</div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="bg-card/60 backdrop-blur-sm border-white/10 text-white">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Visitantes Únicos</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium text-gray-300">Visitantes Únicos</CardTitle>
+                  <Users className="h-4 w-4 text-gray-300" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{analyticsData.uniqueVisitors}</div>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="bg-card/60 backdrop-blur-sm border-white/10 text-white">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Botão Mais Clicado</CardTitle>
-                  <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium text-gray-300">Botão Mais Clicado</CardTitle>
+                  <ArrowUpRight className="h-4 w-4 text-gray-300" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold truncate">{analyticsData.mostClickedButton}</div>
@@ -164,7 +174,7 @@ export default function AdminPage() {
             </div>
 
             <div className="grid gap-4 md:gap-8 lg:grid-cols-2">
-              <Card>
+              <Card className="bg-card/60 backdrop-blur-sm border-white/10 text-white">
                 <CardHeader>
                   <CardTitle>Cliques por Origem</CardTitle>
                 </CardHeader>
@@ -180,26 +190,27 @@ export default function AdminPage() {
                         fill="#8884d8"
                         dataKey="value"
                         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        className="text-white"
                       >
                         {analyticsData.trafficSourceChartData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip />
+                      <Tooltip contentStyle={{ backgroundColor: 'rgba(30, 30, 30, 0.8)', border: '1px solid rgba(255, 255, 255, 0.2)' }} />
                     </PieChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
-              <Card>
+              <Card className="bg-card/60 backdrop-blur-sm border-white/10 text-white">
                 <CardHeader>
                   <CardTitle>Cliques por Link</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
                     <BarChart data={analyticsData.clicksByLabelChartData} layout="vertical" margin={{ left: 30 }}>
-                      <XAxis type="number" hide />
-                      <YAxis dataKey="name" type="category" width={100} tickLine={false} axisLine={false} />
-                      <Tooltip cursor={{ fill: 'hsl(var(--muted))' }}/>
+                      <XAxis type="number" hide tick={{ fill: 'white' }} />
+                      <YAxis dataKey="name" type="category" width={100} tickLine={false} axisLine={false} tick={{ fill: 'white' }}/>
+                      <Tooltip cursor={{ fill: 'rgba(136, 132, 216, 0.2)' }} contentStyle={{ backgroundColor: 'rgba(30, 30, 30, 0.8)', border: '1px solid rgba(255, 255, 255, 0.2)' }}/>
                       <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} barSize={20} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -207,35 +218,35 @@ export default function AdminPage() {
               </Card>
             </div>
 
-            <Card>
+            <Card className="bg-card/60 backdrop-blur-sm border-white/10 text-white">
               <CardHeader>
                 <CardTitle>Eventos de Clique Recentes</CardTitle>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Data / Hora</TableHead>
-                      <TableHead>Fonte</TableHead>
-                      <TableHead>Botão Clicado</TableHead>
-                      <TableHead>Link de Destino</TableHead>
-                      <TableHead>Localização</TableHead>
+                    <TableRow className="border-b-white/10">
+                      <TableHead className="text-gray-300">Data / Hora</TableHead>
+                      <TableHead className="text-gray-300">Fonte</TableHead>
+                      <TableHead className="text-gray-300">Botão Clicado</TableHead>
+                      <TableHead className="text-gray-300">Link de Destino</TableHead>
+                      <TableHead className="text-gray-300">Localização</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {clickEvents && clickEvents.map((event) => (
-                      <TableRow key={event.id}>
+                      <TableRow key={event.id} className="border-b-white/10 hover:bg-white/5">
                         <TableCell>
                           {event.timestamp?.toDate ? format(event.timestamp.toDate(), "dd/MM/yyyy HH:mm:ss", { locale: ptBR }) : 'N/A'}
                         </TableCell>
                         <TableCell>
-                          <Badge variant={event.trafficSource === 'direct' ? 'secondary' : 'default'}>
+                          <Badge variant={event.trafficSource === 'direct' ? 'secondary' : 'default'} className="bg-accent/80 text-white">
                             {event.trafficSource}
                           </Badge>
                         </TableCell>
                         <TableCell>{event.label}</TableCell>
                         <TableCell>
-                            <a href={event.href} target="_blank" rel="noopener noreferrer" className="text-primary underline">
+                            <a href={event.href} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline hover:text-blue-300">
                                 {event.href}
                             </a>
                         </TableCell>
