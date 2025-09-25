@@ -65,7 +65,7 @@ export default function Home() {
               key={link.href}
               asChild
               variant="outline"
-              className="w-full h-14 text-base gap-4 bg-accent/60 border-white/10 backdrop-blur-sm hover:bg-accent hover:text-foreground transition-all duration-300 ease-in-out transform hover:scale-105"
+              className="w-full h-14 text-base gap-4 bg-accent/60 border-white/10 backdrop-blur-sm hover:bg-accent hover:text-foreground transition-all duration-300 ease-in-out transform hover:scale-105 rounded-full"
             >
               <a href={link.href} target="_blank" rel="noopener noreferrer">
                 {link.icon}
