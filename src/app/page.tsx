@@ -43,15 +43,16 @@ export default function Home() {
       <div className="absolute inset-0 z-10 bg-black/50"></div>
       <div className="z-20 flex w-full flex-col items-center justify-center text-center">
         {profilePic && (
-          <Image
-            src={profilePic.imageUrl}
-            alt={profilePic.description}
-            width={128}
-            height={128}
-            className="rounded-full mb-4 border-2 border-primary/50 shadow-lg"
-            data-ai-hint={profilePic.imageHint}
-            priority
-          />
+          <div className="relative w-32 h-32 rounded-full mb-4 border-2 border-primary/50 shadow-lg overflow-hidden">
+            <Image
+              src={profilePic.imageUrl}
+              alt={profilePic.description}
+              layout="fill"
+              objectFit="cover"
+              data-ai-hint={profilePic.imageHint}
+              priority
+            />
+          </div>
         )}
 
         <h1 className="font-headline text-4xl font-bold text-foreground">
