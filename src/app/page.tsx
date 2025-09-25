@@ -70,12 +70,25 @@ export default function Home() {
               key={link.href}
               asChild
               variant="outline"
-              className="w-full h-14 text-base font-bold gap-4 bg-accent/60 border-white/10 backdrop-blur-sm hover:bg-accent hover:text-foreground transition-all duration-300 ease-in-out transform hover:scale-105 rounded-full text-white relative overflow-hidden"
-              style={link.backgroundImage ? { backgroundImage: `url(${link.backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+              className="w-full h-14 text-base font-bold bg-accent/60 border-white/10 backdrop-blur-sm hover:bg-accent hover:text-foreground transition-all duration-300 ease-in-out transform hover:scale-105 rounded-full text-white relative overflow-hidden group"
             >
-              <a href={link.href} target="_blank" rel="noopener noreferrer" className="z-10 flex items-center gap-4">
-                {link.icon}
-                <span>{link.label}</span>
+              <a href={link.href} target="_blank" rel="noopener noreferrer" className="z-10 w-full h-full flex items-center justify-center">
+                {link.backgroundImage && (
+                  <>
+                    <Image
+                      src={link.backgroundImage}
+                      alt={link.label}
+                      layout="fill"
+                      objectFit="cover"
+                      className="absolute inset-0 z-0 transition-transform duration-300 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 z-10 bg-black/40"></div>
+                  </>
+                )}
+                <div className="relative z-20 flex items-center gap-4">
+                  {link.icon}
+                  <span>{link.label}</span>
+                </div>
               </a>
             </Button>
           ))}
