@@ -2,131 +2,139 @@
  * @fileoverview Firestore Security Rules for the application.
  *
  * Core Philosophy:
- * This ruleset enforces a strict user-ownership model for user profiles and links,
- * database-based access control (DBAC) for administrative privileges, and allows public
- * creation of click events while restricting read access to administrators only.
+ * This ruleset enforces a combination of path-based ownership for user data and role-based access control for administrative functions.
+ * It prioritizes security by minimizing external reads (`get()` calls) and structurally segregating data based on access requirements.
  *
  * Data Structure:
  * - /users/{userId}: Stores user profile information, accessible only by the user themselves.
- * - /users/{userId}/links/{linkId}: Stores links owned by a specific user, continuing the
- *   user-ownership model.
- * - /click_events/{clickEventId}: Stores click events, publicly creatable, readable only by admins.
- * - /roles_admin/{userId}: Used for DBAC; the presence of a document grants admin privileges.
- * - /admin/traffic_reports/{reportId}: stores aggregate data related to traffic reports. Admin only
+ * - /users/{userId}/links/{linkId}: Stores links owned by a specific user, accessible only by that user.
+ * - /click_events/{clickEventId}: Stores click events, creatable by anyone but only readable by admins.
+ * - /roles_admin/{userId}: Used for DBAC. The *existence* of a document grants admin privileges.
+ * - /admin/traffic_reports/{reportId}: Stores aggregate traffic data, accessible only by admins.
  *
  * Key Security Decisions:
- * - User listing is implicitly disallowed by the structure.
- * - Administrative privileges are granted via DBAC, by checking for the existence of a document
- *   in the /roles_admin/{userId} collection.
- * - Click event creation is public to facilitate traffic tracking, but read access is restricted
- *   to admins for reporting purposes.
- * - All write operations require authentication.
+ * - User data is strictly owned by the user, enforced through path-based rules.
+ * - Click event creation is open to facilitate tracking, but reading is restricted to admins.
+ * - Admin privileges are managed through the presence of a document in the /roles_admin collection.
+ * - List operations are generally restricted except where explicitly allowed (e.g., listing a user's own links).
+ *
+ * Denormalization for Authorization:
+ * - User ownership is encoded in the path for `/users/{userId}` and `/users/{userId}/links/{linkId}`, avoiding the need for `get()` calls to verify ownership.
+ * - Admin status is determined by the existence of a document in `/roles_admin/{userId}`, also avoiding `get()` calls.
+ *
+ * Structural Segregation:
+ * - Publicly creatable click events are stored in a separate collection (`/click_events`) from user-owned data, allowing for different security rules.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Grants access to user profile data only to the user themselves.
+     * @description Controls access to user profile documents.
      * @path /users/{userId}
-     * @allow (get, create, update, delete, list): if request.auth.uid == userId
-     * @deny (get, create, update, delete, list): if request.auth.uid != userId
-     * @principle Enforces document ownership for all operations.
+     * @allow (create) - Authenticated user can create their own profile (if userId matches auth.uid).
+     * @allow (get, update, delete) - Authenticated user can get, update, and delete their own profile (if userId matches auth.uid).
+     * @deny (list) - Listing all users is not allowed.
+     * @deny (create, update, delete) - Any user attempting to modify a different user's profile.
+     * @principle Enforces document ownership; users can only access their own profile data.
      */
     match /users/{userId} {
-      // Helper function to check if the user is signed in and owns the profile.
-      function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
+      function isSignedIn() {
+        return request.auth != null;
       }
 
-      // Helper function to check if the user is signed in and owns the profile, also check if the resource exists.
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
       function isExistingOwner(userId) {
         return isOwner(userId) && resource != null;
       }
 
       allow get: if isOwner(userId);
       allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Grants access to links data only to the user themselves.
+     * @description Controls access to link documents within a user's profile.
      * @path /users/{userId}/links/{linkId}
-     * @allow (get, create, update, delete, list): if request.auth.uid == userId
-     * @deny (get, create, update, delete, list): if request.auth.uid != userId
-     * @principle Enforces document ownership for all operations.
+     * @allow (create) - Authenticated user can create a link under their profile.
+     * @allow (get, list, update, delete) - Authenticated user can get, list, update, and delete links under their profile.
+     * @deny (create, update, delete) - Any user attempting to modify another user's links.
+     * @principle Enforces document ownership; users can only access links within their own profile.
      */
     match /users/{userId}/links/{linkId} {
-      // Helper function to check if the user is signed in and owns the profile.
-      function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
+      function isSignedIn() {
+        return request.auth != null;
       }
 
-      // Helper function to check if the user is signed in and owns the profile, also check if the resource exists.
-      function isExistingOwner(userId) {
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
+        function isExistingOwner(userId) {
         return isOwner(userId) && resource != null;
       }
 
       allow get: if isOwner(userId);
       allow list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.userProfileId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userProfileId == resource.data.userProfileId;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Allows anyone to create click events, but restricts reading to admins only.
+     * @description Controls access to click event documents.
      * @path /click_events/{clickEventId}
-     * @allow create: if request.auth != null
-     * @allow get, list: if isAdmin()
-     * @deny update, delete: if true
-     * @principle Allows public creation of click events for traffic tracking, while restricting
-     *            read access to administrators for reporting.
+     * @allow (create) - Anyone can create a click event (no authentication required).
+     * @allow (get, list) - Only admins can read click events.
+     * @deny (update, delete) - No one can update or delete click events.
+     * @principle Allows public creation of click events but restricts reading to admins.
      */
     match /click_events/{clickEventId} {
-      // Helper function to determine if a user has admin privileges via DBAC.
       function isAdmin() {
-        return exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+          return exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
       }
 
       allow get: if isAdmin();
       allow list: if isAdmin();
-      allow create: if request.auth != null;
+      allow create: if true;
       allow update: if false;
       allow delete: if false;
     }
 
+        /**
+         * @description Controls access to admin role documents. The *existence* of a document here grants admin privileges.
+         * @path /roles_admin/{userId}
+         * @allow (create) - Only admins can grant other users admin priveleges.
+         * @allow (get) - Admins can check their own status
+         * @deny (list, update, delete) - Listing, updating, or deleting role assignments is not allowed through this path.
+         * @principle DBAC implementation, the existance of this document confers admin status
+         */
+        match /roles_admin/{userId} {
+            function isAdmin() {
+                return exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+            }
+
+            allow get: if isAdmin() && request.auth.uid == userId;
+            allow list: if false;
+            allow create: if isAdmin();
+            allow update: if false;
+            allow delete: if false;
+        }
+
     /**
-     * @description Controls administrative access using DBAC.  The existence of a document
-     *              in this collection grants admin rights to the corresponding user.
-     * @path /roles_admin/{userId}
-     * @allow get, create, update, delete, list: if request.auth.uid == userId
-     * @deny get, create, update, delete, list: if request.auth.uid != userId
-     * @principle Implements Database-Based Access Control (DBAC) for admin privileges.
+     * @description Controls access to traffic report documents.
+     * @path /admin/traffic_reports/{reportId}
+     * @allow (get, list, create, update, delete) - Only admins can access traffic reports.
+     * @principle Restricts access to traffic reports to admins only.
      */
-    match /roles_admin/{userId} {
-      // Helper function to check if the user is signed in and owns the profile.
-      function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
-      }
-
-      allow get: if isOwner(userId);
-      allow list: if false; // Do not allow listing of admin roles.
-      allow create: if isOwner(userId);
-      allow update: if false; // Admin roles should not be updated; delete and recreate.
-      allow delete: if isOwner(userId);
-    }
-
-     /**
-      * @description Grants access to traffic reports data only to admins.
-      * @path /admin/traffic_reports/{reportId}
-      */
-     match /admin/traffic_reports/{reportId} {
-      // Helper function to determine if a user has admin privileges via DBAC.
+    match /admin/traffic_reports/{reportId} {
       function isAdmin() {
-        return exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+          return exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
       }
 
       allow get: if isAdmin();
