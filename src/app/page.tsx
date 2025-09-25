@@ -15,9 +15,8 @@ const links = [
     icon: <Instagram className="size-5" />,
   },
   {
-    href: 'https://github.com',
-    label: 'GitHub',
-    icon: <Github className="size-5" />,
+    href: 'https://discord.gg/yDXTRvJCuQ',
+    label: 'comunidade gratuita',
   },
   {
     href: 'https://linkedin.com',
@@ -44,7 +43,7 @@ export default function Home() {
         className="absolute z-0"
         unoptimized
       />
-      <div className="absolute inset-0 z-10 bg-black/50"></div>
+      <div className="absolute inset-0 z-10 bg-black/70"></div>
       <div className="z-20 flex w-full flex-col items-center justify-center text-center">
         {profilePic && (
           <div className="relative w-32 h-32 rounded-full mb-4 border-2 border-primary/50 shadow-lg overflow-hidden">
@@ -82,7 +81,7 @@ export default function Home() {
                       objectFit="cover"
                       className="absolute inset-0 z-0 transition-transform duration-300 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 z-10 bg-black/50"></div>
+                    <div className="absolute inset-0 z-10 bg-black/70"></div>
                   </>
                 )}
                 <div className="relative z-20 flex items-center gap-4">
