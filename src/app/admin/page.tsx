@@ -16,7 +16,9 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export default function AdminPage() {
-  const firestore = getFirestore();
+  // Mover a chamada getFirestore para dentro do componente
+  const firestore = useMemoFirebase(() => getFirestore(), []);
+  
   const clickEventsQuery = useMemoFirebase(() => {
     if (!firestore) return null;
     return query(collection(firestore, 'click_events'), orderBy('timestamp', 'desc'));
