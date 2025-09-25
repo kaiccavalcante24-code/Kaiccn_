@@ -116,7 +116,7 @@ const MusicPlayer: React.FC = () => {
   return (
     <Card className="fixed bottom-4 right-4 z-50 w-80 rounded-lg bg-card/80 p-4 shadow-lg backdrop-blur-sm">
       <div className="flex items-center gap-4">
-        <div className="relative h-16 w-16 overflow-hidden rounded-md aspect-square">
+        <div className="relative h-16 w-16 overflow-hidden rounded-full aspect-square">
           <Image
             src={currentTrack.cover}
             alt={currentTrack.title}
