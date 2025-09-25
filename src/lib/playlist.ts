@@ -13,9 +13,9 @@ export const playlist: Track[] = [
     source: '/musicas/1.mp3',
   },
   {
-    title: 'Nome da Música 2',
-    artist: 'Nome do Artista 2',
-    cover: 'https://picsum.photos/seed/2/200/200',
+    title: 'C418 - Mice on Venus',
+    artist: 'Relax Mine',
+    cover: 'https://i.imgur.com/qaktpAp.png',
     source: '/musicas/2.mp3',
   },
   {
