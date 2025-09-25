@@ -1,8 +1,8 @@
 import Image from 'next/image';
-import { Twitter, Instagram } from 'lucide-react';
+import { Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { FaDiscord, FaTiktok } from "react-icons/fa";
+import { FaDiscord, FaTiktok, FaWhatsapp } from "react-icons/fa";
 
 
 const links = [
@@ -27,9 +27,9 @@ const links = [
     icon: <FaTiktok className="size-5" />,
   },
   {
-    href: 'https://x.com',
-    label: 'Twitter / X',
-    icon: <Twitter className="size-5" />,
+    href: 'https://chat.whatsapp.com/GznPLfRztSvGBBDcZgH08A',
+    label: 'Networking Day One',
+    icon: <FaWhatsapp className="size-5" />,
   },
 ];
 
