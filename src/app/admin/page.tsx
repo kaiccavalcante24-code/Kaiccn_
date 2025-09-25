@@ -198,7 +198,7 @@ export default function AdminPage() {
         {analyticsData && (
           <>
             <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
-              <Card className="bg-card/50 backdrop-blur-sm border-white/10 text-white rounded-xl">
+              <Card className="bg-card/40 backdrop-blur-sm border-white/10 text-white rounded-xl">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-gray-300">Total de Cliques ({currentPeriodTitle})</CardTitle>
                   <MousePointerClick className="h-4 w-4 text-gray-300" />
@@ -207,7 +207,7 @@ export default function AdminPage() {
                   <div className="text-2xl font-bold">{analyticsData.totalClicks}</div>
                 </CardContent>
               </Card>
-              <Card className="bg-card/50 backdrop-blur-sm border-white/10 text-white rounded-xl">
+              <Card className="bg-card/40 backdrop-blur-sm border-white/10 text-white rounded-xl">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-gray-300">Visitantes Únicos ({currentPeriodTitle})</CardTitle>
                   <Users className="h-4 w-4 text-gray-300" />
@@ -216,7 +216,7 @@ export default function AdminPage() {
                   <div className="text-2xl font-bold">{analyticsData.uniqueVisitors}</div>
                 </CardContent>
               </Card>
-              <Card className="bg-card/50 backdrop-blur-sm border-white/10 text-white rounded-xl">
+              <Card className="bg-card/40 backdrop-blur-sm border-white/10 text-white rounded-xl">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium text-gray-300">Botão Mais Clicado ({currentPeriodTitle})</CardTitle>
                   <ArrowUpRight className="h-4 w-4 text-gray-300" />
@@ -228,7 +228,7 @@ export default function AdminPage() {
             </div>
 
             <div className="grid gap-4 md:gap-8 lg:grid-cols-2">
-              <Card className="bg-card/50 backdrop-blur-sm border-white/10 text-white rounded-xl">
+              <Card className="bg-card/40 backdrop-blur-sm border-white/10 text-white rounded-xl">
                 <CardHeader>
                   <CardTitle>Fontes de Tráfego ({currentPeriodTitle})</CardTitle>
                   <p className="text-sm text-muted-foreground">Total de visitas por dia de cada fonte de tráfego.</p>
@@ -269,7 +269,7 @@ export default function AdminPage() {
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
-              <Card className="bg-card/50 backdrop-blur-sm border-white/10 text-white rounded-xl">
+              <Card className="bg-card/40 backdrop-blur-sm border-white/10 text-white rounded-xl">
                 <CardHeader>
                   <CardTitle>Cliques por Link ({currentPeriodTitle})</CardTitle>
                 </CardHeader>
@@ -286,7 +286,7 @@ export default function AdminPage() {
               </Card>
             </div>
 
-            <Card className="bg-card/50 backdrop-blur-sm border-white/10 text-white rounded-xl">
+            <Card className="bg-card/40 backdrop-blur-sm border-white/10 text-white rounded-xl">
               <CardHeader>
                 <CardTitle>Eventos de Clique Recentes ({currentPeriodTitle})</CardTitle>
               </CardHeader>
@@ -331,3 +331,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
