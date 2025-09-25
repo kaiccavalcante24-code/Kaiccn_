@@ -75,6 +75,7 @@ function HomePageContent() {
           layout="fill"
           objectFit="cover"
           unoptimized
+          className="transform scale-150 sm:scale-100"
         />
         <div className="absolute inset-0 bg-black/70"></div>
       </div>
