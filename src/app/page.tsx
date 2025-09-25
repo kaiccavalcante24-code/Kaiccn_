@@ -2,7 +2,7 @@ import Image from 'next/image';
 import { Linkedin, Twitter, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { AiOutlineDiscord } from "react-icons/ai";
+import { FaDiscord } from "react-icons/fa";
 
 
 const links = [
@@ -19,7 +19,7 @@ const links = [
   {
     href: 'https://discord.gg/yDXTRvJCuQ',
     label: 'Comunidade Gratuita',
-    icon: <AiOutlineDiscord className="size-5" />,
+    icon: <FaDiscord className="size-5" />,
   },
   {
     href: 'https://linkedin.com',
