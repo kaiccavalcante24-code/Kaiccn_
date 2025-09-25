@@ -13,9 +13,9 @@ export const playlist: Track[] = [
     source: '/musicas/1.mp3',
   },
   {
-    title: 'C418 - Mice on Venus',
-    artist: 'Relax Mine',
-    cover: 'https://i.imgur.com/qaktpAp.png',
+    title: 'Innerbloom (Radio Edit)',
+    artist: 'RÜFÜS DU SOL',
+    cover: 'https://i.imgur.com/mXOgLWu.png',
     source: '/musicas/2.mp3',
   },
   {
