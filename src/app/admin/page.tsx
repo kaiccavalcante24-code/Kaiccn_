@@ -26,8 +26,6 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
-  BarChart,
-  Bar,
 } from 'recharts';
 import { ArrowUpRight, MousePointerClick, Users } from 'lucide-react';
 import Image from 'next/image';
@@ -301,12 +299,18 @@ export default function AdminPage() {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={analyticsData.clicksByLabelChartData} layout="vertical" margin={{ left: 20, right: 20 }}>
-                      <XAxis type="number" stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                      <YAxis type="category" dataKey="name" stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} width={100} />
+                    <AreaChart data={analyticsData.clicksByLabelChartData}>
+                      <defs>
+                        <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
+                          <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="name" stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} />
                       <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="value" fill="#8884d8" name="Cliques" radius={[0, 4, 4, 0]} />
-                    </BarChart>
+                      <Area type="monotone" dataKey="value" stroke="#8884d8" fill="url(#colorClicks)" name="Cliques" />
+                    </AreaChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
@@ -317,12 +321,18 @@ export default function AdminPage() {
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
-                     <BarChart data={analyticsData.trafficSourcesChartData} layout="vertical" margin={{ left: 20, right: 20 }}>
-                      <XAxis type="number" stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                      <YAxis type="category" dataKey="name" stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} />
-                      <Tooltip content={<CustomTooltip />} />
-                      <Bar dataKey="value" fill="#82ca9d" name="Visitas" radius={[0, 4, 4, 0]} />
-                    </BarChart>
+                     <AreaChart data={analyticsData.trafficSourcesChartData}>
+                        <defs>
+                          <linearGradient id="colorTraffic" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8}/>
+                            <stop offset="95%" stopColor="#82ca9d" stopOpacity={0}/>
+                          </linearGradient>
+                        </defs>
+                        <XAxis dataKey="name" stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                        <YAxis stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                        <Tooltip content={<CustomTooltip />} />
+                        <Area type="monotone" dataKey="value" stroke="#82ca9d" fill="url(#colorTraffic)" name="Visitas" />
+                      </AreaChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
