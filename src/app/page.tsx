@@ -1,9 +1,14 @@
+'use client';
+
 import Image from 'next/image';
 import { Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { FaDiscord, FaTiktok, FaWhatsapp } from "react-icons/fa";
 import MusicPlayer from '@/components/MusicPlayer';
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 
 const links = [
@@ -36,6 +41,22 @@ const links = [
 
 export default function Home() {
   const profilePic = PlaceHolderImages.find(p => p.id === 'profile_picture');
+  const isMobile = useIsMobile();
+  
+  const ProfileImage = () => (
+    <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full mb-4 border-2 border-primary/50 shadow-lg overflow-hidden transition-transform duration-300 ease-in-out hover:scale-110">
+      {profilePic && (
+        <Image
+          src={profilePic.imageUrl}
+          alt={profilePic.description}
+          layout="fill"
+          objectFit="cover"
+          data-ai-hint={profilePic.imageHint}
+          priority
+        />
+      )}
+    </div>
+  );
 
   return (
     <main className="page-wrapper relative flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 overflow-hidden pb-48 sm:pb-4">
@@ -49,17 +70,25 @@ export default function Home() {
       />
       <div className="absolute inset-0 z-10 bg-black/70"></div>
       <div className="z-20 flex w-full flex-col items-center justify-center text-center">
-        {profilePic && (
-          <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full mb-4 border-2 border-primary/50 shadow-lg overflow-hidden">
-            <Image
-              src={profilePic.imageUrl}
-              alt={profilePic.description}
-              layout="fill"
-              objectFit="cover"
-              data-ai-hint={profilePic.imageHint}
-              priority
-            />
-          </div>
+        {isMobile && profilePic ? (
+          <Dialog>
+            <DialogTrigger asChild>
+              <div className="cursor-pointer">
+                <ProfileImage />
+              </div>
+            </DialogTrigger>
+            <DialogContent className="p-0 w-auto bg-transparent border-none">
+              <Image
+                src={profilePic.imageUrl}
+                alt={profilePic.description}
+                width={500}
+                height={500}
+                className="rounded-lg max-w-[90vw] max-h-[90vh] object-contain"
+              />
+            </DialogContent>
+          </Dialog>
+        ) : (
+           <ProfileImage />
         )}
 
         <h1 className="font-headline text-3xl sm:text-4xl font-bold text-foreground">
