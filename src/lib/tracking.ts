@@ -1,7 +1,7 @@
 'use client';
 
-import { addDocumentNonBlocking } from "@/firebase";
-import { collection, getFirestore } from "firebase/firestore";
+import { addDocumentNonBlocking, initializeFirebase } from "@/firebase";
+import { collection } from "firebase/firestore";
 
 export type ClickEvent = {
     linkId: string;
@@ -16,7 +16,8 @@ export type ClickEvent = {
 
 export async function trackClick(label: string, href: string, trafficSource: string = 'direct') {
     try {
-        const firestore = getFirestore();
+        // Obtenha a instância do Firestore a partir da função de inicialização do cliente.
+        const { firestore } = initializeFirebase();
         const clickEventsCollection = collection(firestore, 'click_events');
 
         let locationData = {};
