@@ -46,27 +46,17 @@ const MusicPlayer: React.FC = () => {
     }
   }, [volume, isMuted]);
 
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setProgress(audioRef.current.currentTime);
+    }
+  };
 
-    const setAudioData = () => {
-      if (audio.duration) {
-        setDuration(audio.duration);
-      }
-    };
-
-    const setAudioTime = () => setProgress(audio.currentTime);
-
-    audio.addEventListener('loadedmetadata', setAudioData);
-    audio.addEventListener('timeupdate', setAudioTime);
-
-    return () => {
-      audio.removeEventListener('loadedmetadata', setAudioData);
-      audio.removeEventListener('timeupdate', setAudioTime);
-    };
-  }, [currentTrackIndex]);
-
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
 
   const togglePlayPause = () => {
     setIsPlaying(!isPlaying);
@@ -184,6 +174,8 @@ const MusicPlayer: React.FC = () => {
         src={currentTrack.source} 
         preload="metadata"
         onEnded={onEnded}
+        onTimeUpdate={handleTimeUpdate}
+        onLoadedMetadata={handleLoadedMetadata}
       />
     </Card>
   );
