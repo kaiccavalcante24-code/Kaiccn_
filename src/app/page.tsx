@@ -2,19 +2,7 @@ import Image from 'next/image';
 import { Linkedin, Twitter, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-
-const DiscordIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    {...props}
-  >
-    <path d="M21.531 3.25a2.463 2.463 0 0 0-2.3-.52l-1.031.543a12.61 12.61 0 0 0-4.406-.859 12.574 12.574 0 0 0-4.406.86l-1.031-.544a2.46 2.46 0 0 0-2.3.52c-1.438 1.054-1.438 2.805 0 3.858l.563.41c-2.156 1.83-3.219 4.148-3.328 6.554a2.75 2.75 0 0 0 .75 2.016 2.65 2.65 0 0 0 2.156.883c1.031.648 2.25.961 3.516.961 1.266 0 2.484-.313 3.516-.96a2.65 2.65 0 0 0 2.156-.884 2.75 2.75 0 0 0 .75-2.016c-.109-2.406-1.172-4.723-3.328-6.553l.563-.41c1.438-1.054 1.438-2.805 0-3.859zm-10.828 9.11c-1.109 0-2.016-.954-2.016-2.125 0-1.172.906-2.125 2.016-2.125s2.016.953 2.016 2.125c0 1.171-.907 2.125-2.016 2.125zm6.586 0c-1.109 0-2.016-.954-2.016-2.125 0-1.172.907-2.125 2.016-2.125s2.016.953 2.016 2.125c0 1.171-.906 2.125-2.016 2.125z" />
-  </svg>
-);
+import { AiOutlineDiscord } from "react-icons/ai";
 
 
 const links = [
@@ -31,7 +19,7 @@ const links = [
   {
     href: 'https://discord.gg/yDXTRvJCuQ',
     label: 'Comunidade Gratuita',
-    icon: <DiscordIcon className="size-5" />,
+    icon: <AiOutlineDiscord className="size-5" />,
   },
   {
     href: 'https://linkedin.com',
