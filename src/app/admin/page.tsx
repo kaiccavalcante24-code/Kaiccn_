@@ -1,6 +1,6 @@
 'use client';
 
-import { useCollection, useMemoFirebase } from '@/firebase';
+import { useCollection, useMemoFirebase, useUser } from '@/firebase';
 import { collection, getFirestore, query, orderBy } from 'firebase/firestore';
 import {
   Table,
@@ -14,16 +14,34 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { getAuth, signOut } from 'firebase/auth';
 
 export default function AdminPage() {
+  const { user, isUserLoading } = useUser();
+  const router = useRouter();
   const firestore = useMemoFirebase(() => getFirestore(), []);
   
   const clickEventsQuery = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (!firestore || !user) return null; // Wait for user
     return query(collection(firestore, 'click_events'), orderBy('timestamp', 'desc'));
-  }, [firestore]);
+  }, [firestore, user]);
 
   const { data: clickEvents, isLoading: isLoadingEvents, error } = useCollection(clickEventsQuery);
+
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
+
+  const handleLogout = async () => {
+    const auth = getAuth();
+    await signOut(auth);
+    router.push('/login');
+  };
 
   const renderLocation = (locationDataString: string) => {
     try {
@@ -34,11 +52,20 @@ export default function AdminPage() {
     }
   };
 
+  if (isUserLoading || !user) {
+    return (
+        <div className="flex h-screen items-center justify-center bg-background">
+            <p>Carregando...</p>
+        </div>
+    )
+  }
+
   return (
     <div className="container mx-auto py-10">
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Painel de Analytics</CardTitle>
+          <Button onClick={handleLogout} variant="outline">Sair</Button>
         </CardHeader>
         <CardContent>
           {isLoadingEvents && <p>Carregando dados...</p>}
