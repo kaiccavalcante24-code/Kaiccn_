@@ -31,11 +31,15 @@ const MusicPlayer: React.FC = () => {
     if (!audio) return;
 
     const updateProgress = () => {
-      setProgress(audio.currentTime);
+      if (!audio.paused) {
+        setProgress(audio.currentTime);
+      }
     };
 
     const updateDuration = () => {
-      setDuration(audio.duration);
+      if (audio.duration) {
+        setDuration(audio.duration);
+      }
     };
     
     const handleTrackEnd = () => {
@@ -107,7 +111,7 @@ const MusicPlayer: React.FC = () => {
   };
 
   const formatTime = (time: number) => {
-    if (isNaN(time)) return '0:00';
+    if (isNaN(time) || time === 0) return '0:00';
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
@@ -115,20 +119,18 @@ const MusicPlayer: React.FC = () => {
 
   return (
     <Card className="fixed bottom-4 right-4 left-4 sm:left-auto z-50 sm:w-80 rounded-lg bg-card/80 p-4 shadow-lg backdrop-blur-sm">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-            <div className="relative h-12 w-12 overflow-hidden rounded-md aspect-square">
-                <Image
-                    src={currentTrack.cover}
-                    alt={currentTrack.title}
-                    layout="fill"
-                    objectFit="cover"
-                />
-            </div>
-            <div className="flex-1">
-                <h3 className="font-bold text-sm truncate text-foreground">{currentTrack.title}</h3>
-                <p className="text-xs text-muted-foreground">{currentTrack.artist}</p>
-            </div>
+      <div className="flex items-center gap-4">
+        <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-md aspect-square">
+            <Image
+                src={currentTrack.cover}
+                alt={currentTrack.title}
+                layout="fill"
+                objectFit="cover"
+            />
+        </div>
+        <div className="flex flex-col min-w-0 flex-1">
+            <h3 className="font-bold text-sm truncate text-foreground">{currentTrack.title}</h3>
+            <p className="text-xs text-muted-foreground truncate">{currentTrack.artist}</p>
         </div>
         <div className="flex items-center justify-center gap-1">
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handlePrev}>
@@ -159,7 +161,7 @@ const MusicPlayer: React.FC = () => {
 
         <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleMute}>
-              {isMuted ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+              {isMuted || volume === 0 ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
             </Button>
             <Slider
               min={0}
@@ -171,7 +173,9 @@ const MusicPlayer: React.FC = () => {
             />
         </div>
       </div>
-      <audio ref={audioRef} src={currentTrack.source} preload="metadata" />
+      <audio ref={audioRef} src={currentTrack.source} preload="metadata" onLoadedMetadata={() => {
+        if(audioRef.current) setDuration(audioRef.current.duration);
+      }}/>
     </Card>
   );
 };
