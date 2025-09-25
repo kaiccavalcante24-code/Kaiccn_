@@ -23,7 +23,7 @@ const links = [
   },
   {
     href: 'https://www.tiktok.com/@okaiccn_?is_from_webapp=1&sender_device=pc',
-    label: 'TikTok',
+    label: 'Tiktok │okaiccn_',
     icon: <FaTiktok className="size-5" />,
   },
   {
