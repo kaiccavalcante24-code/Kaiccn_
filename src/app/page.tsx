@@ -9,6 +9,8 @@ import MusicPlayer from '@/components/MusicPlayer';
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { trackClick } from '@/lib/tracking';
+import { useSearchParams } from 'next/navigation';
 
 
 const links = [
@@ -42,6 +44,12 @@ const links = [
 export default function Home() {
   const profilePic = PlaceHolderImages.find(p => p.id === 'profile_picture');
   const isMobile = useIsMobile();
+  const searchParams = useSearchParams();
+  const trafficSource = searchParams.get('utm_source') || 'direct';
+
+  const handleLinkClick = (label: string, href: string) => {
+    trackClick(label, href, trafficSource);
+  };
   
   const ProfileImage = () => (
     <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full mb-4 border-2 border-primary/50 shadow-lg overflow-hidden transition-transform duration-300 ease-in-out hover:scale-110">
@@ -105,6 +113,7 @@ export default function Home() {
               asChild
               variant="outline"
               className="w-full h-14 sm:h-16 text-sm sm:text-base font-bold bg-accent/60 border-white/10 backdrop-blur-sm hover:bg-accent hover:text-foreground transition-all duration-300 ease-in-out transform hover:scale-105 rounded-full text-white relative overflow-hidden group"
+              onClick={() => handleLinkClick(link.label, link.href)}
             >
               <a href={link.href} target="_blank" rel="noopener noreferrer" className="z-10 w-full h-full flex items-center justify-center">
                 {link.backgroundImage && (
