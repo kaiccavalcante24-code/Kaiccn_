@@ -32,10 +32,14 @@ export default function Home() {
 
   return (
     <main className="page-wrapper relative flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 overflow-hidden">
-      <video autoPlay loop muted className="absolute z-0 w-auto min-w-full min-h-full max-w-none">
-        <source src="https://assets.mixkit.co/videos/preview/mixkit-stars-in-space-1610-large.mp4" type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
+      <Image
+        src="https://i.imgur.com/jf8g3JT.gif"
+        alt="Animated background"
+        layout="fill"
+        objectFit="cover"
+        className="absolute z-0"
+        unoptimized
+      />
       <div className="absolute inset-0 z-10 bg-black/50"></div>
       <div className="z-20 flex w-full flex-col items-center justify-center text-center">
         {profilePic && (
