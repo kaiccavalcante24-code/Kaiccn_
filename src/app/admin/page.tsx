@@ -29,7 +29,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import { ArrowUpRight, MousePointerClick, Users } from 'lucide-react';
+import { ArrowUpRight, MousePointerClick, Users, TrafficCone } from 'lucide-react';
 import Image from 'next/image';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -101,6 +101,16 @@ export default function AdminPage() {
 
     const mostClickedButton = clicksByLabelChartData[0]?.name || 'N/A';
 
+    const clicksBySource = periodClickEvents.reduce((acc, event) => {
+        const source = event.trafficSource || 'direct';
+        acc[source] = (acc[source] || 0) + 1;
+        return acc;
+    }, {} as Record<string, number>);
+
+    const clicksBySourceChartData = Object.entries(clicksBySource)
+        .map(([name, value]) => ({ name, value }))
+        .sort((a, b) => b.value - a.value);
+
     const trafficOverTime = periodClickEvents.reduce((acc, event) => {
       if (!event.timestamp?.toDate) return acc;
       const date = format(startOfDay(event.timestamp.toDate()), 'dd/MM');
@@ -138,6 +148,7 @@ export default function AdminPage() {
       trafficSources: allSources,
       trafficOverTimeChartData,
       clicksByLabelChartData,
+      clicksBySourceChartData,
       recentClickEvents: periodClickEvents,
     };
   }, [clickEvents, selectedPeriod]);
@@ -227,10 +238,10 @@ export default function AdminPage() {
               </Card>
             </div>
 
-            <div className="grid gap-4 md:gap-8 lg:grid-cols-2">
+            <div className="grid gap-4 md:gap-8 lg:grid-cols-1">
               <Card className="bg-card/40 backdrop-blur-sm border-white/10 text-white rounded-xl">
                 <CardHeader>
-                  <CardTitle>Fontes de Tráfego ({currentPeriodTitle})</CardTitle>
+                  <CardTitle>Tráfego ao Longo do Tempo ({currentPeriodTitle})</CardTitle>
                   <p className="text-sm text-muted-foreground">Total de visitas por dia de cada fonte de tráfego.</p>
                 </CardHeader>
                 <CardContent>
@@ -269,21 +280,42 @@ export default function AdminPage() {
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
-              <Card className="bg-card/40 backdrop-blur-sm border-white/10 text-white rounded-xl">
-                <CardHeader>
-                  <CardTitle>Cliques por Link ({currentPeriodTitle})</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={analyticsData.clicksByLabelChartData} layout="vertical" margin={{ left: 30 }}>
-                      <XAxis type="number" hide tick={{ fill: 'white' }} />
-                      <YAxis dataKey="name" type="category" width={100} tickLine={false} axisLine={false} tick={{ fill: 'white' }}/>
-                      <Tooltip cursor={{ fill: 'rgba(136, 132, 216, 0.2)' }} contentStyle={{ backgroundColor: 'rgba(30, 30, 30, 0.8)', border: '1px solid rgba(255, 255, 255, 0.2)' }}/>
-                      <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} barSize={20} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </CardContent>
-              </Card>
+            </div>
+
+             <div className="grid gap-4 md:gap-8 lg:grid-cols-2">
+                <Card className="bg-card/40 backdrop-blur-sm border-white/10 text-white rounded-xl">
+                    <CardHeader>
+                    <CardTitle>Cliques por Link ({currentPeriodTitle})</CardTitle>
+                     <p className="text-sm text-muted-foreground">Qual botão foi mais clicado.</p>
+                    </CardHeader>
+                    <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={analyticsData.clicksByLabelChartData} layout="vertical" margin={{ left: 30 }}>
+                        <XAxis type="number" hide tick={{ fill: 'white' }} />
+                        <YAxis dataKey="name" type="category" width={100} tickLine={false} axisLine={false} tick={{ fill: 'white' }}/>
+                        <Tooltip cursor={{ fill: 'rgba(136, 132, 216, 0.2)' }} contentStyle={{ backgroundColor: 'rgba(30, 30, 30, 0.8)', border: '1px solid rgba(255, 255, 255, 0.2)' }}/>
+                        <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} barSize={20} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-card/40 backdrop-blur-sm border-white/10 text-white rounded-xl">
+                    <CardHeader>
+                    <CardTitle>Fontes de Tráfego ({currentPeriodTitle})</CardTitle>
+                    <p className="text-sm text-muted-foreground">De onde os usuários estão vindo.</p>
+                    </CardHeader>
+                    <CardContent>
+                    <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={analyticsData.clicksBySourceChartData} layout="vertical" margin={{ left: 30 }}>
+                        <XAxis type="number" hide tick={{ fill: 'white' }} />
+                        <YAxis dataKey="name" type="category" width={80} tickLine={false} axisLine={false} tick={{ fill: 'white' }}/>
+                        <Tooltip cursor={{ fill: 'rgba(136, 132, 216, 0.2)' }} contentStyle={{ backgroundColor: 'rgba(30, 30, 30, 0.8)', border: '1px solid rgba(255, 255, 255, 0.2)' }}/>
+                        <Bar dataKey="value" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} barSize={20} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                    </CardContent>
+                </Card>
             </div>
 
             <Card className="bg-card/40 backdrop-blur-sm border-white/10 text-white rounded-xl">
@@ -331,5 +363,3 @@ export default function AdminPage() {
     </div>
   );
 }
-
-    
