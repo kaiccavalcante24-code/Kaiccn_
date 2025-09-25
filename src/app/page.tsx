@@ -82,7 +82,7 @@ export default function Home() {
                       objectFit="cover"
                       className="absolute inset-0 z-0 transition-transform duration-300 group-hover:scale-110"
                     />
-                    <div className="absolute inset-0 z-10 bg-black/20"></div>
+                    <div className="absolute inset-0 z-10 bg-black/50"></div>
                   </>
                 )}
                 <div className="relative z-20 flex items-center gap-4">
