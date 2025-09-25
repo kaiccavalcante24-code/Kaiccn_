@@ -30,12 +30,40 @@ const MusicPlayer: React.FC = () => {
   const currentTrack = playlist[currentTrackIndex];
 
   useEffect(() => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.play().catch(e => console.error("Error playing audio:", e));
-      } else {
-        audioRef.current.pause();
+    const audio = audioRef.current;
+
+    const setAudioData = () => {
+      if (audio) {
+        setDuration(audio.duration);
       }
+    };
+
+    const setAudioTime = () => {
+      if (audio) {
+        setProgress(audio.currentTime);
+      }
+    };
+    
+    const handleEnded = () => {
+      handleNext();
+    };
+
+    if (audio) {
+      audio.addEventListener('loadedmetadata', setAudioData);
+      audio.addEventListener('timeupdate', setAudioTime);
+      audio.addEventListener('ended', handleEnded);
+
+      if (isPlaying) {
+        audio.play().catch(e => console.error("Error playing audio:", e));
+      } else {
+        audio.pause();
+      }
+
+      return () => {
+        audio.removeEventListener('loadedmetadata', setAudioData);
+        audio.removeEventListener('timeupdate', setAudioTime);
+        audio.removeEventListener('ended', handleEnded);
+      };
     }
   }, [isPlaying, currentTrackIndex]);
   
@@ -45,18 +73,6 @@ const MusicPlayer: React.FC = () => {
       audio.volume = isMuted ? 0 : volume;
     }
   }, [volume, isMuted]);
-
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      setProgress(audioRef.current.currentTime);
-    }
-  };
-
-  const handleLoadedMetadata = () => {
-    if (audioRef.current) {
-      setDuration(audioRef.current.duration);
-    }
-  };
 
   const togglePlayPause = () => {
     setIsPlaying(!isPlaying);
@@ -100,10 +116,6 @@ const MusicPlayer: React.FC = () => {
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
-
-  const onEnded = () => {
-    handleNext();
   };
 
   return (
@@ -173,9 +185,6 @@ const MusicPlayer: React.FC = () => {
         ref={audioRef} 
         src={currentTrack.source} 
         preload="metadata"
-        onEnded={onEnded}
-        onTimeUpdate={handleTimeUpdate}
-        onLoadedMetadata={handleLoadedMetadata}
       />
     </Card>
   );
