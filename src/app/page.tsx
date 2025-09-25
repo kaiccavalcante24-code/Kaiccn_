@@ -7,7 +7,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { FaDiscord, FaTiktok, FaWhatsapp } from "react-icons/fa";
 import MusicPlayer from '@/components/MusicPlayer';
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 
@@ -78,6 +78,8 @@ export default function Home() {
               </div>
             </DialogTrigger>
             <DialogContent className="p-0 w-auto bg-transparent border-none">
+               <DialogTitle className="sr-only">Foto de Perfil de Kaic Cavalcante</DialogTitle>
+               <DialogDescription className="sr-only">Uma imagem ampliada da foto de perfil de Kaic Cavalcante.</DialogDescription>
               <Image
                 src={profilePic.imageUrl}
                 alt={profilePic.description}
