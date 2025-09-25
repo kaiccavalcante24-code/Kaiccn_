@@ -1,10 +1,14 @@
 import Image from 'next/image';
-import { Github, Linkedin, Twitter, Globe, Instagram } from 'lucide-react';
+import { Github, Linkedin, Twitter, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import type { ImagePlaceholder } from '@/lib/placeholder-images';
 
 const links = [
+  {
+    href: 'https://comunidadedayone.com.br/pagina-oficial/',
+    label: 'D.A.Y COMMUNITY',
+    backgroundImage: 'https://i.imgur.com/iXUBEal.jpeg',
+  },
   {
     href: 'https://www.instagram.com/kaiccn_',
     label: 'Instagram',
@@ -24,11 +28,6 @@ const links = [
     href: 'https://x.com',
     label: 'Twitter / X',
     icon: <Twitter className="size-5" />,
-  },
-  {
-    href: '#',
-    label: 'My Project',
-    icon: <Globe className="size-5" />,
   },
 ];
 
@@ -71,9 +70,10 @@ export default function Home() {
               key={link.href}
               asChild
               variant="outline"
-              className="w-full h-14 text-base gap-4 bg-accent/60 border-white/10 backdrop-blur-sm hover:bg-accent hover:text-foreground transition-all duration-300 ease-in-out transform hover:scale-105 rounded-full"
+              className="w-full h-14 text-base font-bold gap-4 bg-accent/60 border-white/10 backdrop-blur-sm hover:bg-accent hover:text-foreground transition-all duration-300 ease-in-out transform hover:scale-105 rounded-full text-white relative overflow-hidden"
+              style={link.backgroundImage ? { backgroundImage: `url(${link.backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
             >
-              <a href={link.href} target="_blank" rel="noopener noreferrer">
+              <a href={link.href} target="_blank" rel="noopener noreferrer" className="z-10 flex items-center gap-4">
                 {link.icon}
                 <span>{link.label}</span>
               </a>
