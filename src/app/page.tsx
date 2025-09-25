@@ -56,9 +56,9 @@ export default function Home() {
         )}
 
         <h1 className="font-headline text-4xl font-bold text-foreground">
-          Kaic
+          Kaic Cavalcante
         </h1>
-        <p className="font-body text-lg text-foreground/80 mt-1">@kaic.bio</p>
+        <p className="font-body text-lg text-foreground/80 mt-1">@Kaiccn_</p>
 
         <div className="mt-8 flex w-full max-w-xs flex-col items-center space-y-4 sm:max-w-sm">
           {links.map((link) => (
