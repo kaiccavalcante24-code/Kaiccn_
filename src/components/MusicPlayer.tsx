@@ -102,9 +102,9 @@ const MusicPlayer: React.FC = () => {
   };
 
   return (
-    <Card className="fixed bottom-4 right-4 left-4 sm:left-auto z-50 sm:w-80 rounded-2xl bg-card/80 p-4 shadow-lg backdrop-blur-sm">
+    <Card className="fixed bottom-4 right-4 left-4 sm:left-auto z-50 sm:w-80 rounded-2xl bg-card/80 p-4 shadow-lg backdrop-blur-sm transition-all duration-300 ease-in-out hover:shadow-2xl hover:scale-105 active:scale-100">
       <div className="flex items-center gap-4">
-        <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-md aspect-square">
+        <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg aspect-square">
             <Image
                 src={currentTrack.cover}
                 alt={currentTrack.title}
