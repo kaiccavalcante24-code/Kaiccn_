@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { format, subDays } from 'date-fns';
+import { format, subDays, eachDayOfInterval, startOfDay } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
@@ -98,7 +98,7 @@ export default function AdminPage() {
 
     const trafficOverTime = recentClickEvents.reduce((acc, event) => {
       if (!event.timestamp?.toDate) return acc;
-      const date = format(event.timestamp.toDate(), 'dd/MM');
+      const date = format(startOfDay(event.timestamp.toDate()), 'dd/MM');
       const source = event.trafficSource || 'direct';
 
       if (!acc[date]) {
@@ -110,20 +110,21 @@ export default function AdminPage() {
     }, {} as Record<string, Record<string, number>>);
 
     const allSources = Array.from(new Set(recentClickEvents.map(e => e.trafficSource || 'direct')));
+    
+    const endDate = new Date();
+    const startDate = subDays(endDate, 29);
+    const dateInterval = eachDayOfInterval({ start: startDate, end: endDate });
 
-    const trafficOverTimeChartData = Object.entries(trafficOverTime)
-      .map(([date, sources]) => ({
-        date,
-        ...allSources.reduce((acc, source) => {
-          acc[source] = sources[source] || 0;
-          return acc;
-        }, {} as Record<string, number>),
-      }))
-      .sort((a, b) => {
-        const [dayA, monthA] = a.date.split('/');
-        const [dayB, monthB] = b.date.split('/');
-        return new Date(`${monthA}/${dayA}/2024`).getTime() - new Date(`${monthB}/${dayB}/2024`).getTime();
+    const trafficOverTimeChartData = dateInterval.map(day => {
+      const dateKey = format(day, 'dd/MM');
+      const dailyData = trafficOverTime[dateKey] || {};
+      
+      const dayData: { date: string, [key: string]: any } = { date: dateKey };
+      allSources.forEach(source => {
+        dayData[source] = dailyData[source] || 0;
       });
+      return dayData;
+    });
 
     return {
       totalClicks,
