@@ -27,33 +27,6 @@ const MusicPlayer: React.FC = () => {
   const currentTrack = playlist[currentTrackIndex];
 
   useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    const updateProgress = () => {
-      setProgress(audio.currentTime);
-    };
-
-    const setAudioData = () => {
-      setDuration(audio.duration);
-    }
-    
-    const handleTrackEnd = () => {
-      handleNext();
-    }
-
-    audio.addEventListener('timeupdate', updateProgress);
-    audio.addEventListener('loadedmetadata', setAudioData);
-    audio.addEventListener('ended', handleTrackEnd);
-
-    return () => {
-      audio.removeEventListener('timeupdate', updateProgress);
-      audio.removeEventListener('loadedmetadata', setAudioData);
-      audio.removeEventListener('ended', handleTrackEnd);
-    };
-  }, [currentTrackIndex]);
-
-  useEffect(() => {
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.play().catch(e => console.error("Error playing audio:", e));
@@ -113,6 +86,18 @@ const MusicPlayer: React.FC = () => {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
+  const onTimeUpdate = (e: React.SyntheticEvent<HTMLAudioElement>) => {
+    setProgress(e.currentTarget.currentTime);
+  };
+
+  const onLoadedMetadata = (e: React.SyntheticEvent<HTMLAudioElement>) => {
+    setDuration(e.currentTarget.duration);
+  };
+
+  const onEnded = () => {
+    handleNext();
+  };
+
   return (
     <Card className="fixed bottom-4 right-4 left-4 sm:left-auto z-50 sm:w-80 rounded-lg bg-card/80 p-4 shadow-lg backdrop-blur-sm">
       <div className="flex items-center gap-4">
@@ -169,7 +154,14 @@ const MusicPlayer: React.FC = () => {
             />
         </div>
       </div>
-      <audio ref={audioRef} src={currentTrack.source} preload="metadata"/>
+      <audio 
+        ref={audioRef} 
+        src={currentTrack.source} 
+        preload="metadata"
+        onTimeUpdate={onTimeUpdate}
+        onLoadedMetadata={onLoadedMetadata}
+        onEnded={onEnded}
+      />
     </Card>
   );
 };
