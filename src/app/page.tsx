@@ -67,78 +67,81 @@ function HomePageContent() {
   );
 
   return (
-    <main className="page-wrapper relative flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 overflow-hidden pb-48 sm:pb-4">
-      <Image
-        src="/videos/video.gif"
-        alt="Animated background"
-        layout="fill"
-        objectFit="cover"
-        className="absolute z-0"
-        unoptimized
-      />
-      <div className="absolute inset-0 z-10 bg-black/70"></div>
-      <div className="z-20 flex w-full flex-col items-center justify-center text-center">
-        {isMobile && profilePic ? (
-          <Dialog>
-            <DialogTrigger asChild>
-              <div className="cursor-pointer">
-                <ProfileImage />
-              </div>
-            </DialogTrigger>
-            <DialogContent className="p-0 w-auto bg-transparent border-none">
-               <DialogTitle className="sr-only">Foto de Perfil de Kaic Cavalcante</DialogTitle>
-               <DialogDescription className="sr-only">Uma imagem ampliada da foto de perfil de Kaic Cavalcante.</DialogDescription>
-              <Image
-                src={profilePic.imageUrl}
-                alt={profilePic.description}
-                width={500}
-                height={500}
-                className="rounded-lg max-w-[90vw] max-h-[90vh] object-contain"
-              />
-            </DialogContent>
-          </Dialog>
-        ) : (
-           <ProfileImage />
-        )}
-
-        <h1 className="font-headline text-3xl sm:text-4xl font-bold text-foreground">
-          Kaic Cavalcante
-        </h1>
-        <p className="font-body text-md sm:text-lg text-foreground/80 mt-1">@Kaiccn_</p>
-
-        <div className="mt-8 flex w-full max-w-xs sm:max-w-sm flex-col items-center space-y-4">
-          {links.map((link) => (
-            <Button
-              key={link.href}
-              asChild
-              variant="outline"
-              className="w-full h-14 sm:h-16 text-sm sm:text-base font-bold bg-accent/60 border-white/10 backdrop-blur-sm hover:bg-accent hover:text-foreground transition-all duration-300 ease-in-out transform hover:scale-105 rounded-full text-white relative overflow-hidden group"
-              onClick={() => handleLinkClick(link.label, link.href)}
-            >
-              <a href={link.href} target="_blank" rel="noopener noreferrer" className="z-10 w-full h-full flex items-center justify-center">
-                {link.backgroundImage && (
-                  <>
-                    <Image
-                      src={link.backgroundImage}
-                      alt={link.label}
-                      layout="fill"
-                      objectFit="cover"
-                      className="absolute inset-0 z-0 transition-transform duration-300 group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 z-10 bg-black/70 group-hover:bg-black/60 transition-colors"></div>
-                  </>
-                )}
-                <div className="relative z-20 flex items-center gap-2 sm:gap-4">
-                  {link.icon}
-                  <span>{link.label}</span>
-                </div>
-              </a>
-            </Button>
-          ))}
-        </div>
+    <>
+      <div className="fixed inset-0 z-0">
+        <Image
+          src="/videos/video.gif"
+          alt="Animated background"
+          layout="fill"
+          objectFit="cover"
+          unoptimized
+        />
+        <div className="absolute inset-0 bg-black/70"></div>
       </div>
-      <MusicPlayer />
-    </main>
+      <main className="relative z-10 flex min-h-screen w-full flex-col items-center justify-center p-4 pb-48 sm:pb-4">
+        <div className="flex w-full flex-col items-center justify-center text-center">
+          {isMobile && profilePic ? (
+            <Dialog>
+              <DialogTrigger asChild>
+                <div className="cursor-pointer">
+                  <ProfileImage />
+                </div>
+              </DialogTrigger>
+              <DialogContent className="p-0 w-auto bg-transparent border-none">
+                 <DialogTitle className="sr-only">Foto de Perfil de Kaic Cavalcante</DialogTitle>
+                 <DialogDescription className="sr-only">Uma imagem ampliada da foto de perfil de Kaic Cavalcante.</DialogDescription>
+                <Image
+                  src={profilePic.imageUrl}
+                  alt={profilePic.description}
+                  width={500}
+                  height={500}
+                  className="rounded-lg max-w-[90vw] max-h-[90vh] object-contain"
+                />
+              </DialogContent>
+            </Dialog>
+          ) : (
+             <ProfileImage />
+          )}
+
+          <h1 className="font-headline text-3xl sm:text-4xl font-bold text-foreground">
+            Kaic Cavalcante
+          </h1>
+          <p className="font-body text-md sm:text-lg text-foreground/80 mt-1">@Kaiccn_</p>
+
+          <div className="mt-8 flex w-full max-w-xs sm:max-w-sm flex-col items-center space-y-4">
+            {links.map((link) => (
+              <Button
+                key={link.href}
+                asChild
+                variant="outline"
+                className="w-full h-14 sm:h-16 text-sm sm:text-base font-bold bg-accent/60 border-white/10 backdrop-blur-sm hover:bg-accent hover:text-foreground transition-all duration-300 ease-in-out transform hover:scale-105 rounded-full text-white relative overflow-hidden group"
+                onClick={() => handleLinkClick(link.label, link.href)}
+              >
+                <a href={link.href} target="_blank" rel="noopener noreferrer" className="z-10 w-full h-full flex items-center justify-center">
+                  {link.backgroundImage && (
+                    <>
+                      <Image
+                        src={link.backgroundImage}
+                        alt={link.label}
+                        layout="fill"
+                        objectFit="cover"
+                        className="absolute inset-0 z-0 transition-transform duration-300 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 z-10 bg-black/70 group-hover:bg-black/60 transition-colors"></div>
+                    </>
+                  )}
+                  <div className="relative z-20 flex items-center gap-2 sm:gap-4">
+                    {link.icon}
+                    <span>{link.label}</span>
+                  </div>
+                </a>
+              </Button>
+            ))}
+          </div>
+        </div>
+        <MusicPlayer />
+      </main>
+    </>
   );
 }
 
