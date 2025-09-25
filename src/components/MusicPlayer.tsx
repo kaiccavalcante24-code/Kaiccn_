@@ -14,6 +14,8 @@ import { playlist } from '@/lib/playlist';
 import { Slider } from '@/components/ui/slider';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { useIsMobile } from '@/hooks/use-mobile';
+
 
 const MusicPlayer: React.FC = () => {
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
@@ -23,6 +25,7 @@ const MusicPlayer: React.FC = () => {
   const [volume, setVolume] = useState(0.8);
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const isMobile = useIsMobile();
 
   const currentTrack = playlist[currentTrackIndex];
 
@@ -99,7 +102,7 @@ const MusicPlayer: React.FC = () => {
   };
 
   return (
-    <Card className="fixed bottom-4 right-4 left-4 sm:left-auto z-50 sm:w-80 rounded-lg bg-card/80 p-4 shadow-lg backdrop-blur-sm">
+    <Card className="fixed bottom-4 right-4 left-4 sm:left-auto z-50 sm:w-80 rounded-2xl bg-card/80 p-4 shadow-lg backdrop-blur-sm">
       <div className="flex items-center gap-4">
         <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-md aspect-square">
             <Image
@@ -144,14 +147,16 @@ const MusicPlayer: React.FC = () => {
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleMute}>
               {isMuted || volume === 0 ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
             </Button>
-            <Slider
-              min={0}
-              max={1}
-              step={0.05}
-              value={[isMuted ? 0 : volume]}
-              onValueChange={handleVolumeChange}
-              className="w-full"
-            />
+            {!isMobile && (
+              <Slider
+                min={0}
+                max={1}
+                step={0.05}
+                value={[isMuted ? 0 : volume]}
+                onValueChange={handleVolumeChange}
+                className="w-full"
+              />
+            )}
         </div>
       </div>
       <audio 
