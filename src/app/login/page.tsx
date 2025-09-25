@@ -27,17 +27,20 @@ export default function LoginPage() {
       await signInWithEmailAndPassword(auth, email, password);
       router.push('/admin');
     } catch (error: any) {
-        // If user not found, try to create it
+        // If user not found or credential is wrong, try to create a new user.
+        // This is useful for the first login.
         if (error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
             try {
+                // Attempt to create the user
                 await createUserWithEmailAndPassword(auth, email, password);
+                // Then, sign in with the newly created user
                 await signInWithEmailAndPassword(auth, email, password);
                 router.push('/admin');
             } catch (creationError: any) {
                  toast({
                     variant: 'destructive',
                     title: 'Erro ao criar usuário',
-                    description: creationError.message,
+                    description: `Não foi possível criar o usuário. ${creationError.message}`,
                 });
             }
         } else {
