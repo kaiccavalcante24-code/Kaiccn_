@@ -126,6 +126,11 @@ const MusicPlayer: React.FC = () => {
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleNext}>
             <SkipForward className="size-5" />
           </Button>
+          {isMobile && (
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleMute}>
+              {isMuted || volume === 0 ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -143,21 +148,21 @@ const MusicPlayer: React.FC = () => {
             <span className="text-xs font-mono text-muted-foreground">{formatTime(duration)}</span>
         </div>
 
-        <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleMute}>
-              {isMuted || volume === 0 ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
-            </Button>
-            {!isMobile && (
+        {!isMobile && (
+          <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleMute}>
+                {isMuted || volume === 0 ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+              </Button>
               <Slider
-                min={0}
-                max={1}
-                step={0.05}
-                value={[isMuted ? 0 : volume]}
-                onValueChange={handleVolumeChange}
-                className="w-full"
-              />
-            )}
-        </div>
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={[isMuted ? 0 : volume]}
+                  onValueChange={handleVolumeChange}
+                  className="w-full"
+                />
+          </div>
+        )}
       </div>
       <audio 
         ref={audioRef} 
