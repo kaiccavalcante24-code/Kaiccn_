@@ -1,10 +1,15 @@
 import Image from 'next/image';
-import { Github, Linkedin, Twitter, Globe } from 'lucide-react';
+import { Github, Linkedin, Twitter, Globe, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import type { ImagePlaceholder } from '@/lib/placeholder-images';
 
 const links = [
+  {
+    href: 'https://www.instagram.com/kaiccn_',
+    label: 'Instagram',
+    icon: <Instagram className="size-5" />,
+  },
   {
     href: 'https://github.com',
     label: 'GitHub',
