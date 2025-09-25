@@ -1,6 +1,6 @@
 'use client';
 
-import { useCollection, useMemoFirebase, useUser } from '@/firebase';
+import { useCollection, useMemoFirebase } from '@/firebase';
 import { collection, getFirestore, query, orderBy } from 'firebase/firestore';
 import {
   Table,
@@ -16,14 +16,12 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 export default function AdminPage() {
-  const { user, isUserLoading } = useUser();
   const firestore = useMemoFirebase(() => getFirestore(), []);
   
   const clickEventsQuery = useMemoFirebase(() => {
-    // Only create the query if the user is authenticated and firestore is available
-    if (!firestore || !user) return null;
+    if (!firestore) return null;
     return query(collection(firestore, 'click_events'), orderBy('timestamp', 'desc'));
-  }, [firestore, user]);
+  }, [firestore]);
 
   const { data: clickEvents, isLoading: isLoadingEvents, error } = useCollection(clickEventsQuery);
 
@@ -36,24 +34,6 @@ export default function AdminPage() {
     }
   };
 
-  if (isUserLoading) {
-    return (
-        <div className="container mx-auto py-10">
-            <p>Carregando...</p>
-        </div>
-    )
-  }
-
-  if (!user) {
-    return (
-        <div className="container mx-auto py-10">
-            <h1 className='text-2xl font-bold'>Acesso Negado</h1>
-            <p>Você precisa estar logado para ver esta página.</p>
-        </div>
-    )
-  }
-
-
   return (
     <div className="container mx-auto py-10">
       <Card>
@@ -62,7 +42,7 @@ export default function AdminPage() {
         </CardHeader>
         <CardContent>
           {isLoadingEvents && <p>Carregando dados...</p>}
-          {error && <p className='text-red-500'>Erro ao carregar dados. Você tem permissão para ver essas informações?</p>}
+          {error && <p className='text-red-500'>Erro ao carregar dados. As permissões do banco de dados podem estar sendo atualizadas. Tente recarregar a página em alguns instantes.</p>}
           {!isLoadingEvents && clickEvents && (
             <Table>
               <TableHeader>
