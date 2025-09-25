@@ -1,7 +1,7 @@
 'use client';
 
 import { useCollection, useMemoFirebase, useUser } from '@/firebase';
-import { collection, getFirestore, query, orderBy } from 'firebase/firestore';
+import { collection, getFirestore, query, orderBy, getDocs, writeBatch, deleteDoc, doc } from 'firebase/firestore';
 import {
   Table,
   TableBody,
@@ -27,9 +27,21 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import { ArrowUpRight, MousePointerClick, Users } from 'lucide-react';
+import { ArrowUpRight, MousePointerClick, Users, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { useToast } from '@/hooks/use-toast';
 
 
 export default function AdminPage() {
@@ -37,6 +49,7 @@ export default function AdminPage() {
   const router = useRouter();
   const firestore = useMemoFirebase(() => getFirestore(), []);
   const [selectedPeriod, setSelectedPeriod] = useState('30'); // Default to 30 days
+  const { toast } = useToast();
   
   const clickEventsQuery = useMemoFirebase(() => {
     if (!firestore || !user) return null; 
@@ -58,6 +71,30 @@ export default function AdminPage() {
       router.push('/login');
     } catch (error) {
       console.error("Error signing out: ", error);
+    }
+  };
+
+  const handleClearData = async () => {
+    if (!firestore) return;
+    try {
+      const clickEventsCollection = collection(firestore, 'click_events');
+      const snapshot = await getDocs(clickEventsCollection);
+      const batch = writeBatch(firestore);
+      snapshot.docs.forEach(doc => {
+        batch.delete(doc.ref);
+      });
+      await batch.commit();
+      toast({
+        title: "Sucesso!",
+        description: "Todos os dados de clique foram apagados.",
+      });
+    } catch (err) {
+      console.error("Erro ao limpar dados: ", err);
+      toast({
+        variant: "destructive",
+        title: "Erro ao limpar dados",
+        description: "Não foi possível apagar os eventos de clique.",
+      });
     }
   };
   
@@ -215,7 +252,31 @@ export default function AdminPage() {
                     </SelectContent>
                 </Select>
             </div>
-            <Button onClick={handleLogout} variant="outline" className="bg-transparent text-white border-white/50 hover:bg-white/10">Sair</Button>
+            <div className="flex items-center gap-2">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive" size="icon" className="bg-red-500/80 hover:bg-red-500">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta ação não pode ser desfeita. Isso irá apagar permanentemente
+                      todos os dados de eventos de clique.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleClearData} className="bg-destructive hover:bg-destructive/90">
+                      Sim, apagar tudo
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              <Button onClick={handleLogout} variant="outline" className="bg-transparent text-white border-white/50 hover:bg-white/10">Sair</Button>
+            </div>
         </div>
         
         {isLoadingEvents && <p className="text-white">Carregando dados...</p>}
@@ -383,3 +444,5 @@ export default function AdminPage() {
     </div>
   );
 }
+
+    
