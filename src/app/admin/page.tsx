@@ -26,6 +26,8 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  BarChart,
+  Bar,
 } from 'recharts';
 import { ArrowUpRight, MousePointerClick, Users } from 'lucide-react';
 import Image from 'next/image';
@@ -178,7 +180,7 @@ export default function AdminPage() {
         <div className="rounded-lg border border-white/20 bg-card/80 p-2 text-sm text-white backdrop-blur-sm">
           <p className="font-bold">{label}</p>
           {payload.map((pld: any) => (
-            <p key={pld.dataKey} style={{ color: pld.fill }}>
+            <p key={pld.dataKey || pld.name} style={{ color: pld.fill }}>
               {`${pld.name}: ${pld.value}`}
             </p>
           ))}
@@ -253,7 +255,7 @@ export default function AdminPage() {
               </Card>
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:gap-8">
+             <div className="grid grid-cols-1 gap-4 md:gap-8">
               <Card className="bg-card/40 backdrop-blur-sm border-white/10 text-white rounded-xl">
                 <CardHeader>
                   <CardTitle>Fontes de Tráfego ({currentPeriodTitle})</CardTitle>
@@ -287,6 +289,40 @@ export default function AdminPage() {
                         />
                       ))}
                     </AreaChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8">
+              <Card className="bg-card/40 backdrop-blur-sm border-white/10 text-white rounded-xl">
+                <CardHeader>
+                  <CardTitle>Cliques por Link ({currentPeriodTitle})</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={analyticsData.clicksByLabelChartData} layout="vertical" margin={{ left: 20, right: 20 }}>
+                      <XAxis type="number" stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis type="category" dataKey="name" stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} width={100} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Bar dataKey="value" fill="#8884d8" name="Cliques" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-card/40 backdrop-blur-sm border-white/10 text-white rounded-xl">
+                <CardHeader>
+                  <CardTitle>Fontes de Tráfego ({currentPeriodTitle})</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ResponsiveContainer width="100%" height={300}>
+                     <BarChart data={analyticsData.trafficSourcesChartData} layout="vertical" margin={{ left: 20, right: 20 }}>
+                      <XAxis type="number" stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                      <YAxis type="category" dataKey="name" stroke="hsl(var(--foreground))" fontSize={12} tickLine={false} axisLine={false} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Bar dataKey="value" fill="#82ca9d" name="Visitas" radius={[0, 4, 4, 0]} />
+                    </BarChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
