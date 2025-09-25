@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { format } from 'date-fns';
+import { format, subDays } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
@@ -76,10 +76,15 @@ export default function AdminPage() {
   const analyticsData = useMemo(() => {
     if (!clickEvents) return null;
 
-    const totalClicks = clickEvents.length;
-    const uniqueVisitors = new Set(clickEvents.map(e => e.ipAddress)).size;
+    const thirtyDaysAgo = subDays(new Date(), 30);
+    const recentClickEvents = clickEvents.filter(event => 
+      event.timestamp?.toDate && event.timestamp.toDate() > thirtyDaysAgo
+    );
 
-    const clicksByLabel = clickEvents.reduce((acc, event) => {
+    const totalClicks = recentClickEvents.length;
+    const uniqueVisitors = new Set(recentClickEvents.map(e => e.ipAddress)).size;
+
+    const clicksByLabel = recentClickEvents.reduce((acc, event) => {
       const label = event.label || 'N/A';
       acc[label] = (acc[label] || 0) + 1;
       return acc;
@@ -91,7 +96,7 @@ export default function AdminPage() {
 
     const mostClickedButton = clicksByLabelChartData[0]?.name || 'N/A';
 
-    const trafficOverTime = clickEvents.reduce((acc, event) => {
+    const trafficOverTime = recentClickEvents.reduce((acc, event) => {
       if (!event.timestamp?.toDate) return acc;
       const date = format(event.timestamp.toDate(), 'dd/MM');
       const source = event.trafficSource || 'direct';
@@ -104,7 +109,7 @@ export default function AdminPage() {
       return acc;
     }, {} as Record<string, Record<string, number>>);
 
-    const allSources = Array.from(new Set(clickEvents.map(e => e.trafficSource || 'direct')));
+    const allSources = Array.from(new Set(recentClickEvents.map(e => e.trafficSource || 'direct')));
 
     const trafficOverTimeChartData = Object.entries(trafficOverTime)
       .map(([date, sources]) => ({
@@ -127,6 +132,7 @@ export default function AdminPage() {
       trafficSources: allSources,
       trafficOverTimeChartData,
       clicksByLabelChartData,
+      recentClickEvents, // Pass filtered events for the table
     };
   }, [clickEvents]);
 
@@ -166,7 +172,7 @@ export default function AdminPage() {
             <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
               <Card className="bg-card/60 backdrop-blur-sm border-white/10 text-white">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">Total de Cliques</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-300">Total de Cliques (30d)</CardTitle>
                   <MousePointerClick className="h-4 w-4 text-gray-300" />
                 </CardHeader>
                 <CardContent>
@@ -175,7 +181,7 @@ export default function AdminPage() {
               </Card>
               <Card className="bg-card/60 backdrop-blur-sm border-white/10 text-white">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">Visitantes Únicos</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-300">Visitantes Únicos (30d)</CardTitle>
                   <Users className="h-4 w-4 text-gray-300" />
                 </CardHeader>
                 <CardContent>
@@ -184,7 +190,7 @@ export default function AdminPage() {
               </Card>
               <Card className="bg-card/60 backdrop-blur-sm border-white/10 text-white">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-gray-300">Botão Mais Clicado</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-300">Botão Mais Clicado (30d)</CardTitle>
                   <ArrowUpRight className="h-4 w-4 text-gray-300" />
                 </CardHeader>
                 <CardContent>
@@ -196,7 +202,7 @@ export default function AdminPage() {
             <div className="grid gap-4 md:gap-8 lg:grid-cols-2">
               <Card className="bg-card/60 backdrop-blur-sm border-white/10 text-white">
                 <CardHeader>
-                  <CardTitle>Fontes de Tráfego</CardTitle>
+                  <CardTitle>Fontes de Tráfego (Últimos 30 dias)</CardTitle>
                   <p className="text-sm text-muted-foreground">Total de visitas por dia de cada fonte de tráfego.</p>
                 </CardHeader>
                 <CardContent>
@@ -237,7 +243,7 @@ export default function AdminPage() {
               </Card>
               <Card className="bg-card/60 backdrop-blur-sm border-white/10 text-white">
                 <CardHeader>
-                  <CardTitle>Cliques por Link</CardTitle>
+                  <CardTitle>Cliques por Link (Últimos 30 dias)</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ResponsiveContainer width="100%" height={300}>
@@ -254,7 +260,7 @@ export default function AdminPage() {
 
             <Card className="bg-card/60 backdrop-blur-sm border-white/10 text-white">
               <CardHeader>
-                <CardTitle>Eventos de Clique Recentes</CardTitle>
+                <CardTitle>Eventos de Clique Recentes (Últimos 30 dias)</CardTitle>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -268,7 +274,7 @@ export default function AdminPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {clickEvents && clickEvents.map((event) => (
+                    {analyticsData.recentClickEvents && analyticsData.recentClickEvents.map((event) => (
                       <TableRow key={event.id} className="border-b-white/10 hover:bg-white/5">
                         <TableCell>
                           {event.timestamp?.toDate ? format(event.timestamp.toDate(), "dd/MM/yyyy HH:mm:ss", { locale: ptBR }) : 'N/A'}
