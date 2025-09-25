@@ -38,7 +38,7 @@ export default function Home() {
   const profilePic = PlaceHolderImages.find(p => p.id === 'profile_picture');
 
   return (
-    <main className="page-wrapper relative flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 overflow-hidden">
+    <main className="page-wrapper relative flex min-h-screen w-full flex-col items-center justify-center bg-background p-4 overflow-hidden pb-48 sm:pb-4">
       <Image
         src="https://i.imgur.com/jf8g3JT.gif"
         alt="Animated background"
