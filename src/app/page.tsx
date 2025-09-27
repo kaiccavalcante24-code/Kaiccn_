@@ -21,7 +21,7 @@ const links = [
   },
   {
     href: 'https://www.youtube.com/@Kaiccf/videos',
-    label: 'Canal no Youtube',
+    label: 'Youtube',
     icon: <Youtube className="size-5" />,
   },
   {
