@@ -1,12 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { Instagram } from 'lucide-react';
+import { Instagram, Youtube } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { FaDiscord, FaTiktok, FaWhatsapp } from "react-icons/fa";
 import MusicPlayer from '@/components/MusicPlayer';
-import { Suspense, useState } from 'react';
+import { Suspense } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { trackClick } from '@/lib/tracking';
@@ -18,6 +18,11 @@ const links = [
     href: 'https://comunidadedayone.com.br/pagina-oficial/',
     label: 'D.A.Y COMMUNITY',
     backgroundImage: 'https://i.imgur.com/iXUBEal.jpeg',
+  },
+  {
+    href: 'https://www.youtube.com/@Kaiccf/videos',
+    label: 'Canal no Youtube',
+    icon: <Youtube className="size-5" />,
   },
   {
     href: 'https://www.instagram.com/kaiccn_',
