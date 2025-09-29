@@ -1,7 +1,7 @@
 'use client';
 
-import { addDocumentNonBlocking, initializeFirebase } from "@/firebase";
-import { collection } from "firebase/firestore";
+import { addDoc, collection, getFirestore } from "firebase/firestore";
+import { initializeFirebase } from "@/firebase";
 
 export type ClickEvent = {
     linkId: string;
@@ -14,12 +14,12 @@ export type ClickEvent = {
     locationData?: any;
 };
 
+// Initialize Firebase once and get the firestore instance
+const { firestore } = initializeFirebase();
+const clickEventsCollection = collection(firestore, 'click_events');
+
 export async function trackClick(label: string, href: string, trafficSource: string = 'direct') {
     try {
-        // Obtenha a instância do Firestore a partir da função de inicialização do cliente.
-        const { firestore } = initializeFirebase();
-        const clickEventsCollection = collection(firestore, 'click_events');
-
         let locationData = {};
         try {
             const response = await fetch('https://ipapi.co/json/');
@@ -40,7 +40,10 @@ export async function trackClick(label: string, href: string, trafficSource: str
             timestamp: new Date(),
         };
 
-        addDocumentNonBlocking(clickEventsCollection, clickEvent);
+        // Use addDoc for non-blocking write
+        addDoc(clickEventsCollection, clickEvent).catch(error => {
+            console.error("Error writing click event to Firestore:", error);
+        });
 
     } catch (error) {
         console.error("Error tracking click:", error);

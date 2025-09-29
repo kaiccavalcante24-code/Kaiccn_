@@ -7,10 +7,11 @@ export default function WppPage() {
     const router = useRouter();
 
     useEffect(() => {
-        trackClick('WhatsApp Source', '/wpp', 'whatsapp').then(() => {
-            router.push('/');
+        const url = 'https://chat.whatsapp.com/GznPLfRztSvGBBDcZgH08A';
+        trackClick('WhatsApp Source', url, 'whatsapp').then(() => {
+            window.location.href = url;
         });
-    }, [router]);
+    }, []);
 
     return (
         <div className="flex h-screen items-center justify-center bg-background text-foreground">

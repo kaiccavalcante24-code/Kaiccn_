@@ -7,10 +7,11 @@ export default function ComunidadePage() {
     const router = useRouter();
 
     useEffect(() => {
-        trackClick('Comunidade Source', '/comunidade', 'comunidade').then(() => {
-            router.push('/');
+        const url = 'https://comunidadedayone.com.br/pagina-oficial/';
+        trackClick('Comunidade Source', url, 'comunidade').then(() => {
+            window.location.href = url;
         });
-    }, [router]);
+    }, []);
 
     return (
         <div className="flex h-screen items-center justify-center bg-background text-foreground">

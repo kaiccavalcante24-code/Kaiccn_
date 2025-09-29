@@ -7,10 +7,11 @@ export default function InstaPage() {
     const router = useRouter();
 
     useEffect(() => {
-        trackClick('Instagram Source', '/insta', 'instagram').then(() => {
-            router.push('/');
+        const url = 'https://www.instagram.com/kaiccn_';
+        trackClick('Instagram Source', url, 'instagram').then(() => {
+            window.location.href = url;
         });
-    }, [router]);
+    }, []);
 
     return (
         <div className="flex h-screen items-center justify-center bg-background text-foreground">

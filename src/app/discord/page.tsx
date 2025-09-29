@@ -7,10 +7,11 @@ export default function DiscordPage() {
     const router = useRouter();
 
     useEffect(() => {
-        trackClick('Discord Source', '/discord', 'discord').then(() => {
-            router.push('/');
+        const url = 'https://discord.gg/yDXTRvJCuQ';
+        trackClick('Discord Source', url, 'discord').then(() => {
+            window.location.href = url;
         });
-    }, [router]);
+    }, []);
 
     return (
         <div className="flex h-screen items-center justify-center bg-background text-foreground">
